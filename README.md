@@ -8,22 +8,92 @@ Bayan 360 is a comprehensive Geographic Information System (GIS) dashboard desig
 
 ### Core Components
 
-The system consists of 9 main HTML dashboard applications, each serving specific LGU functions:
+The system consists of 9 main HTML dashboard applications, each serving specific LGU functions and user roles:
 
-1. **Main Landing Page** (`bayan360-dashboard Home.html`)
-2. **Executive & Legislative Landing** (`Executive & Legislative Landing page.html`)
-3. **Mayor's Dashboard** (`MAYOR DASHBOARD.html`)
-4. **Office of the Mayor** (`Office mayor.html`)
-5. **Sangguniang Bayan Dashboard** (`Sangguinang Bayan Dashboard .html`)
-6. **Sangguniang Bayan** (`Sangguinang bayan.html`)
-7. **Vice Mayor's Office** (`Vice Mayor Officce.html`)
-8. **City/Municipal Admin Dashboard** (`City_Municipal Admin Dashboard.html`)
-9. **City/Municipal Admin** (`City_Municipal Admin.html`)
+1. **Main Landing Page** (`bayan360-dashboard Home.html`) - **Public Access Portal**
+2. **Executive & Legislative Landing** (`Executive & Legislative Landing page.html`) - **Executive & Legislative Staff**
+3. **Mayor's Dashboard** (`MAYOR DASHBOARD.html`) - **Mayor & Executive Staff**
+4. **Office of the Mayor** (`Office mayor.html`) - **Mayor's Office Staff**
+5. **Sangguniang Bayan Dashboard** (`Sangguinang Bayan Dashboard .html`) - **SB Members & Legislative Staff**
+6. **Sangguniang Bayan** (`Sangguinang bayan.html`) - **SB Secretary & Legislative Staff**
+7. **Vice Mayor's Office** (`Vice Mayor Officce.html`) - **Vice Mayor & Coordination Staff**
+8. **City/Municipal Admin Dashboard** (`City_Municipal Admin Dashboard.html`) - **Municipal Administrator**
+9. **City/Municipal Admin** (`City_Municipal Admin.html`) - **IT Admin & System Managers**
+
+## 👥 **User Roles & Access Levels**
+
+### **Public Users**
+- **Access**: Main Landing Page only
+- **Purpose**: View available LGU services and general information
+- **File**: `bayan360-dashboard Home.html`
+
+### **Executive Branch Users**
+
+#### **Mayor & Executive Staff**
+- **Primary Access**: 
+  - `MAYOR DASHBOARD.html` - Strategic overview and analytics
+  - `Office mayor.html` - Detailed executive operations
+- **Responsibilities**: 
+  - Infrastructure planning and monitoring
+  - Revenue collection oversight
+  - Hazard assessment and risk management
+  - Executive decision support
+  - Policy briefings and AIP planning
+
+#### **Vice Mayor & Coordination Staff**
+- **Primary Access**: `Vice Mayor Officce.html`
+- **Responsibilities**:
+  - Barangay services coordination
+  - LGSF compliance monitoring
+  - Service delivery equity analysis
+  - SB coordination and liaison
+
+### **Legislative Branch Users**
+
+#### **Sangguniang Bayan Members**
+- **Primary Access**: `Sangguinang Bayan Dashboard .html`
+- **Responsibilities**:
+  - Ordinance mapping and tracking
+  - FOI compliance monitoring
+  - Legislative workflow management
+  - Public transparency reporting
+
+#### **SB Secretary & Legislative Staff**
+- **Primary Access**: `Sangguinang bayan.html`
+- **Responsibilities**:
+  - Ordinance upload and mapping
+  - Zone type visualization
+  - Legislative workflow tracking
+  - Document management
+
+### **Administrative Branch Users**
+
+#### **Municipal Administrator**
+- **Primary Access**: `City_Municipal Admin Dashboard.html`
+- **Responsibilities**:
+  - System access monitoring
+  - Security analytics
+  - User activity tracking
+  - Internal audit support
+
+#### **IT Admin & System Managers**
+- **Primary Access**: `City_Municipal Admin.html`
+- **Responsibilities**:
+  - GIS access logs monitoring
+  - Security incident management
+  - Audit trail generation
+  - System governance
+
+### **Cross-Branch Coordination**
+- **Executive & Legislative Staff**: `Executive & Legislative Landing page.html`
+- **Purpose**: Entry point for executive and legislative coordination
+- **Access Level**: Department heads and senior staff
 
 ## 🎯 Dashboard Functions
 
 ### 1. Main Landing Page (`bayan360-dashboard Home.html`)
 **Purpose**: Central hub for accessing all LGU services
+**Target Users**: Public users, LGU staff, and visitors
 - **Design**: Modern bento-grid layout with service categories
 - **Features**:
   - Executive services (Mayor, Vice Mayor, SB, Administrator)
@@ -46,6 +116,7 @@ The system consists of 9 main HTML dashboard applications, each serving specific
 
 ### 2. Executive & Legislative Landing (`Executive & Legislative Landing page.html`)
 **Purpose**: Entry point for executive and legislative branches
+**Target Users**: Executive & Legislative Staff, Department Heads
 - **Features**:
   - Office of the Mayor dashboard access
   - Sangguniang Bayan dashboard access
@@ -56,6 +127,7 @@ The system consists of 9 main HTML dashboard applications, each serving specific
 
 ### 3. Mayor's Dashboard (`MAYOR DASHBOARD.html`)
 **Purpose**: Executive overview with infrastructure, revenue, and hazard analytics
+**Target Users**: Mayor, Executive Staff, Department Heads
 - **Technology Stack**: React.js, Chart.js, Leaflet.js, Tailwind CSS
 - **Key Metrics**:
   - Total Infrastructure: 5,450 assets
@@ -78,6 +150,7 @@ The system consists of 9 main HTML dashboard applications, each serving specific
 
 ### 4. Office of the Mayor (`Office mayor.html`)
 **Purpose**: Strategic GIS dashboard for executive decision-making
+**Target Users**: Mayor's Office Staff, Executive Assistants, Policy Advisors
 - **Features**:
   - Integrated strategic map with multiple layers
   - Revenue collection monitoring
@@ -101,6 +174,7 @@ The system consists of 9 main HTML dashboard applications, each serving specific
 
 ### 5. Sangguniang Bayan Dashboard (`Sangguinang Bayan Dashboard .html`)
 **Purpose**: Ordinance mapping and FOI compliance analytics
+**Target Users**: SB Members, Legislative Staff, Committee Chairs
 - **Technology Stack**: React.js, Chart.js, Leaflet.js, Tailwind CSS
 - **Key Metrics**:
   - Total Ordinances: 342
@@ -123,6 +197,7 @@ The system consists of 9 main HTML dashboard applications, each serving specific
 
 ### 6. Sangguniang Bayan (`Sangguinang bayan.html`)
 **Purpose**: GIS-linked zoning and resettlement law management
+**Target Users**: SB Secretary, Legislative Staff, Legal Officers
 - **Features**:
   - Ordinance upload and mapping
   - Zone type visualization
@@ -146,6 +221,7 @@ The system consists of 9 main HTML dashboard applications, each serving specific
 
 ### 7. Vice Mayor's Office (`Vice Mayor Officce.html`)
 **Purpose**: Barangay services comparison and LGSF equity analysis
+**Target Users**: Vice Mayor, Coordination Staff, Barangay Liaisons
 - **Features**:
   - Performance comparison across barangays
   - LGSF (Local Governance Service Framework) compliance
@@ -168,6 +244,7 @@ The system consists of 9 main HTML dashboard applications, each serving specific
 
 ### 8. City/Municipal Admin Dashboard (`City_Municipal Admin Dashboard.html`)
 **Purpose**: GIS access logs and security analytics
+**Target Users**: Municipal Administrator, Department Heads, Internal Auditors
 - **Technology Stack**: React.js, Chart.js, Tailwind CSS
 - **Key Metrics**:
   - Active Users: 127
@@ -191,6 +268,7 @@ The system consists of 9 main HTML dashboard applications, each serving specific
 
 ### 9. City/Municipal Admin (`City_Municipal Admin.html`)
 **Purpose**: GIS access logs panel with ICS compliance monitoring
+**Target Users**: IT Admin, System Managers, Security Officers
 - **Features**:
   - Real-time access log monitoring
   - User activity tracking
