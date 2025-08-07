@@ -49,7 +49,6 @@ If you encounter any errors:
 4. Ensure the development server is running on port 3000
 
 ## Features Overview
-
 - **Revenue Heatmap**: Visual representation of revenue by barangay
 - **Trend Analysis**: Monthly revenue trends with Chart.js
 - **COA Compliance**: Built-in compliance tracking for audit trails
