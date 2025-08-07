@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './accounthing_office_dash_styles.ts';
+import './accounting_office_dashboard_styles.ts';
+import './accounthing_office_dash_styles.css';
 
 const App = () => {
   // State management
