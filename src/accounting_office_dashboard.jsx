@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './accounthing_office_dash_styles.ts';
+import { GlobalStyle } from './accounting_office_dashboard_styles.ts';
 
 const App = () => {
   // State management
@@ -373,6 +373,7 @@ const App = () => {
 
   return (
     <div>
+      <GlobalStyle />
       {/* Header */}
       <header className="header">
         <div className="header-left">
