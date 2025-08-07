@@ -1,0 +1,120 @@
+/* login.css */
+
+.login-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    flex-direction: row;
+}
+
+.left-panel {
+    flex: 1;
+    background: #dc2626;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+    .left-panel h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .left-panel p {
+        max-width: 300px;
+    }
+
+.right-panel {
+    flex: 1;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    color: #1f2937;
+}
+
+.login-form {
+    width: 100%;
+    max-width: 400px;
+}
+
+    .login-form h2 {
+        margin-bottom: 1.5rem;
+        font-size: 2.5rem;
+        font-weight: 600;
+    }
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        background-color: #f9fafb;
+        color: #111827;
+    }
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+    .form-options a {
+        color: #dc2626;
+        text-decoration: none;
+    }
+
+.error-message {
+    color: #dc2626;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.login-button {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 20px;
+    border: none;
+    background: #dc2626;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+    }
+
+    .left-panel,
+    .right-panel {
+        flex: unset;
+        width: 100%;
+        min-height: 50vh;
+    }
+
+        .left-panel h1 {
+            font-size: 2rem;
+        }
+
+    .login-form h2 {
+        font-size: 2rem;
+    }
+}
