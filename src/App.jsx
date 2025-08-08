@@ -7,6 +7,9 @@ import MayorBudgetUtilizationAndFundTracking from './mayor_budget_utilization_an
 import MayorEmergencyAndDisaster from './mayor_emergency_and_disaster';
 import MayorPolicyReviewLegislative from './mayor_policy_review_legislative';
 import MayorCitizenFeedbackAndPublicSentiment from './mayor_citizen_feedback_and_public_sentiment';
+import ExecutiveOrdersAndMemoGenerator from './executive_orders_and_memo_generator';
+import ExecutiveOverviewLanding from './executive_overview_landing';
+import ProjectMonitoringGeoTracker from './project_monitoring_geotracker'; // ✅ Newly added
 
 const App = () => {
     return (
@@ -18,6 +21,9 @@ const App = () => {
             <Route path="/mayor/emergency-and-disaster" element={<MayorEmergencyAndDisaster />} />
             <Route path="/mayor/policy-review-legislative" element={<MayorPolicyReviewLegislative />} />
             <Route path="/mayor/citizen-feedback-and-public-sentiment" element={<MayorCitizenFeedbackAndPublicSentiment />} />
+            <Route path="/mayor/executive-orders-and-memo-generator" element={<ExecutiveOrdersAndMemoGenerator />} />
+            <Route path="/mayor/executive-overview-landing" element={<ExecutiveOverviewLanding />} />
+            <Route path="/mayor/project-monitoring-geotracker" element={<ProjectMonitoringGeoTracker />} /> {/* ✅ Added */}
         </Routes>
     );
 };
