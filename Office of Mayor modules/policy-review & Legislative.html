@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Review & Legislative Coordination Panel - LCE Strategic GIS Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #374151;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            background-color: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            background-color: #4b5563;
+            color: white;
+            padding: 8px 12px 8px 40px;
+            border: none;
+            border-radius: 4px;
+            width: 300px;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0.6;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            background-color: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sync-badge {
+            background-color: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background-color: white;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 12px;
+            color: #6b7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .nav-item.active {
+            background-color: #dc2626;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Policy Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background-color: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .stat-compliant::before { background-color: #10b981; }
+        .stat-partial::before { background-color: #f59e0b; }
+        .stat-review::before { background-color: #3b82f6; }
+        .stat-gap::before { background-color: #ef4444; }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #dc2626;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f3f4f6;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        /* Full width */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Process Flow */
+        .process-flow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            padding: 6px 12px;
+            background-color: white;
+            border-radius: 4px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .flow-arrow {
+            color: #9ca3af;
+        }
+
+        .flow-active {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        /* Policy Grid */
+        .policy-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .policy-card {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .policy-card:hover {
+            border-color: #dc2626;
+            background-color: #fef2f2;
+        }
+
+        .policy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .policy-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .policy-status {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-review {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-amend {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-expired {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .policy-details {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        /* Compliance Chart */
+        .compliance-meter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: linear-gradient(90deg, #ef4444 0%, #f59e0b 33%, #fbbf24 66%, #10b981 100%);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .compliance-indicator {
+            position: absolute;
+            top: -10px;
+            width: 4px;
+            height: 35px;
+            background-color: #374151;
+            border-radius: 2px;
+            transition: left 0.3s;
+        }
+
+        /* Ordinance List */
+        .ordinance-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .ordinance-item {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .ordinance-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .ordinance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .ordinance-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .compliance-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .compliance-full {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .compliance-partial {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .compliance-low {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .ordinance-details {
+            font-size: 11px;
+            color: #6b7280;
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Mayor Action Section */
+        .mayor-action {
+            background-color: #fef2f2;
+            border: 2px solid #dc2626;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+
+        .mayor-action-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .mayor-action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        /* Impact Assessment */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .impact-item {
+            text-align: center;
+            padding: 8px;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+        }
+
+        .impact-score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .impact-label {
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        /* Policy Gap Alert */
+        .gap-alert {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .gap-icon {
+            font-size: 20px;
+            color: #dc2626;
+        }
+
+        .gap-content {
+            flex: 1;
+        }
+
+        .gap-title {
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 2px;
+        }
+
+        .gap-description {
+            font-size: 12px;
+            color: #7f1d1d;
+        }
+
+        /* Implementation Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 20px;
+            border-left: 2px solid #e5e7eb;
+            padding-left: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #6b7280;
+        }
+
+        .timeline-item.completed::before {
+            background-color: #10b981;
+        }
+
+        .timeline-item.current::before {
+            background-color: #3b82f6;
+            animation: pulse 2s infinite;
+        }
+
+        .timeline-date {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .timeline-content {
+            font-size: 12px;
+            color: #374151;
+        }
+
+        /* Department Compliance */
+        .dept-compliance {
+            display: grid;
+            gap: 8px;
+        }
+
+        .dept-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background-color: #f9fafb;
+            border-radius: 4px;
+        }
+
+        .dept-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .dept-score {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .score-high { color: #10b981; }
+        .score-medium { color: #f59e0b; }
+        .score-low { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                🏛️ OFFICE OF THE MAYOR
+            </div>
+            <div class="search-container">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" class="search-input" placeholder="Search ordinances, resolutions, or policies...">
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="sync-badge">
+                🔄 SP Records Connected
+            </div>
+            <span>POLICY COORDINATION</span>
+            <div class="status-badge">
+                ✅ REVIEW IMPACT
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav>
+                <div class="nav-item">
+                    <span>🧭</span>
+                    <span>EXECUTIVE DASHBOARD</span>
+                </div>
+                <div class="nav-item">
+                    <span>🗺️</span>
+                    <span>PROJECT MONITORING & GEOTRACKER</span>
+                </div>
+                <div class="nav-item">
+                    <span>📈</span>
+                    <span>DEPARTMENT PERFORMANCE SCORECARDS</span>
+                </div>
+                <div class="nav-item">
+                    <span>💬</span>
+                    <span>CITIZEN FEEDBACK & PUBLIC SENTIMENT</span>
+                </div>
+                <div class="nav-item">
+                    <span>📊</span>
+                    <span>BUDGET UTILIZATION & FUND TRACKING</span>
+                </div>
+                <div class="nav-item">
+                    <span>🚨</span>
+                    <span>EMERGENCY & DISASTER ALERT CONSOLE</span>
+                </div>
+                <div class="nav-item">
+                    <span>🧾</span>
+                    <span>EXECUTIVE ORDERS & MEMO GENERATOR</span>
+                </div>
+                <div class="nav-item active">
+                    <span>🧠</span>
+                    <span>POLICY REVIEW & LEGISLATIVE COORDINATION</span>
+                </div>
+                <div class="nav-item">
+                    <span>🏘️</span>
+                    <span>BARANGAY AGGREGATED REPORTS</span>
+                </div>
+                <div class="nav-item">
+                    <span>📁</span>
+                    <span>COMPLIANCE & AUDIT FLAGS MONITOR</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Policy Review & Legislative Coordination Panel</h1>
+                <p class="page-subtitle">Tracks implementation and impact of local ordinances connected to SP records and policy dashboards</p>
+            </div>
+
+            <!-- Policy Gap Alert -->
+            <div class="gap-alert">
+                <div class="gap-icon">⚠️</div>
+                <div class="gap-content">
+                    <div class="gap-title">Policy Gap Detected</div>
+                    <div class="gap-description">3 ordinances show low compliance • 5 policies need amendment • 2 expired ordinances require replacement</div>
+                </div>
+                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">REVIEW GAPS</button>
+            </div>
+
+            <!-- Policy Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card stat-compliant">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-value">245</div>
+                    <div class="stat-label">Active Ordinances</div>
+                </div>
+                <div class="stat-card stat-compliant">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value">78%</div>
+                    <div class="stat-label">Compliance Rate</div>
+                </div>
+                <div class="stat-card stat-partial">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Under Review</div>
+                </div>
+                <div class="stat-card stat-review">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Amendments</div>
+                </div>
+                <div class="stat-card stat-gap">
+                    <div class="stat-icon">🚨</div>
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Policy Gaps</div>
+                </div>
+                <div class="stat-card stat-compliant">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value">95%</div>
+                    <div class="stat-label">Impact Score</div>
+                </div>
+            </div>
+
+            <!-- Process Flow -->
+            <div class="process-flow">
+                <span class="flow-step flow-active">Monitor Implementation</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Evaluate Impact</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Identify Gaps</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Recommend Amendments</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Mayor Review</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Submit to SP</span>
+            </div>
+
+            <div class="grid">
+                <!-- Policy Entry & Monitoring Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">POLICY MONITORING & EVALUATION</h2>
+                        <button class="btn btn-secondary">Import from SP</button>
+                    </div>
+
+                    <!-- Overall Compliance Meter -->
+                    <div style="margin-bottom: 16px;">
+                        <h3 style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Overall Policy Compliance</h3>
+                        <div class="compliance-meter">
+                            <div class="compliance-indicator" style="left: 78%;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 4px;">
+                            <span>Low (0-25%)</span>
+                            <span>Fair (26-50%)</span>
+                            <span>Good (51-75%)</span>
+                            <span>Excellent (76-100%)</span>
+                        </div>
+                    </div>
+
+                    <form id="policy-form">
+                        <div class="form-group">
+                            <label class="form-label">Ordinance/Resolution *</label>
+                            <select class="form-select" required>
+                                <option value="">Select ordinance...</option>
+                                <option>Ord. 2025-001: Business Permit Requirements</option>
+                                <option>Ord. 2024-045: Environmental Protection</option>
+                                <option>Ord. 2024-032: Market Operations</option>
+                                <option>Res. 2025-015: Budget Appropriation</option>
+                                <option>Ord. 2023-067: Traffic Management</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Date Enacted</label>
+                                <input type="date" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Effectivity Date</label>
+                                <input type="date" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Implementing Office(s) *</label>
+                            <select class="form-select" multiple style="height: 80px;">
+                                <option>Business Permit & Licensing</option>
+                                <option>Treasury Office</option>
+                                <option>Engineering Office</option>
+                                <option>Health Office</option>
+                                <option>Environment Office</option>
+                                <option>Market Administration</option>
+                                <option>Traffic Management</option>
+                                <option>DRRMO</option>
+                                <option>Tourism Office</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Policy Summary/Key Provisions</label>
+                            <textarea class="form-textarea" placeholder="Summarize key provisions and requirements..."></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Compliance Status</label>
+                                <select class="form-select">
+                                    <option>Fully Compliant</option>
+                                    <option>Partially Compliant</option>
+                                    <option>Non-Compliant</option>
+                                    <option>Under Review</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Compliance Rate (%)</label>
+                                <input type="number" class="form-input" min="0" max="100" placeholder="0-100">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Implementation Report</label>
+                            <textarea class="form-textarea" placeholder="Enter implementation status, challenges, and outcomes..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Compliance Flags/Issues</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <label style="font-size: 12px;"><input type="checkbox"> Lack of resources</label>
+                                <label style="font-size: 12px;"><input type="checkbox"> Unclear provisions</label>
+                                <label style="font-size: 12px;"><input type="checkbox"> Conflicting policies</label>
+                                <label style="font-size: 12px;"><input type="checkbox"> Public resistance</label>
+                                <label style="font-size: 12px;"><input type="checkbox"> Technical challenges</label>
+                                <label style="font-size: 12px;"><input type="checkbox"> Budget constraints</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Recommended Actions</label>
+                            <select class="form-select">
+                                <option>Continue Implementation</option>
+                                <option>Minor Amendment Needed</option>
+                                <option>Major Revision Required</option>
+                                <option>Repeal and Replace</option>
+                                <option>Additional Guidelines Needed</option>
+                                <option>Resource Allocation Required</option>
+                            </select>
+                        </div>
+
+                        <!-- Mayor's Legislative Action -->
+                        <div class="mayor-action">
+                            <div class="mayor-action-header">🔐 Mayor's Legislative Action</div>
+                            <div class="mayor-action-buttons">
+                                <button type="button" class="btn btn-success">📋 Request Amendment</button>
+                                <button type="button" class="btn btn-warning">🏛️ Submit to SP</button>
+                                <button type="button" class="btn btn-primary">📊 Impact Study</button>
+                                <button type="button" class="btn btn-secondary">📝 Draft Revision</button>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <textarea class="form-textarea" placeholder="Mayor's policy directive or legislative request..." style="min-height: 40px;"></textarea>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 16px;">
+                            <button type="submit" class="btn btn-primary">SUBMIT EVALUATION</button>
+                            <button type="button" class="btn btn-secondary">Generate Report</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Quick Access & Impact Dashboard -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">IMPACT ASSESSMENT</h2>
+                    </div>
+
+                    <!-- Impact Metrics -->
+                    <div class="impact-grid">
+                        <div class="impact-item">
+                            <div class="impact-score">8.5/10</div>
+                            <div class="impact-label">Public Benefit</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-score">92%</div>
+                            <div class="impact-label">Implementation</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-score">₱12M</div>
+                            <div class="impact-label">Revenue Impact</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-score">4.2/5</div>
+                            <div class="impact-label">Satisfaction</div>
+                        </div>
+                    </div>
+
+                    <!-- Department Compliance -->
+                    <div style="margin-top: 16px;">
+                        <h3 style="font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Department Compliance</h3>
+                        <div class="dept-compliance">
+                            <div class="dept-item">
+                                <span class="dept-name">Business Permits</span>
+                                <span class="dept-score score-high">95%</span>
+                            </div>
+                            <div class="dept-item">
+                                <span class="dept-name">Treasury</span>
+                                <span class="dept-score score-high">88%</span>
+                            </div>
+                            <div class="dept-item">
+                                <span class="dept-name">Engineering</span>
+                                <span class="dept-score score-medium">72%</span>
+                            </div>
+                            <div class="dept-item">
+                                <span class="dept-name">Health Office</span>
+                                <span class="dept-score score-high">91%</span>
+                            </div>
+                            <div class="dept-item">
+                                <span class="dept-name">Environment</span>
+                                <span class="dept-score score-low">58%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Implementation Timeline -->
+                    <div style="margin-top: 16px;">
+                        <h3 style="font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Implementation Timeline</h3>
+                        <div class="timeline">
+                            <div class="timeline-item completed">
+                                <div class="timeline-date">Jan 2025</div>
+                                <div class="timeline-content">Policy enacted by SP</div>
+                            </div>
+                            <div class="timeline-item completed">
+                                <div class="timeline-date">Feb 2025</div>
+                                <div class="timeline-content">Guidelines issued</div>
+                            </div>
+                            <div class="timeline-item current">
+                                <div class="timeline-date">Mar-Jul 2025</div>
+                                <div class="timeline-content">Implementation phase</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">Aug 2025</div>
+                                <div class="timeline-content">Mid-term evaluation</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">Dec 2025</div>
+                                <div class="timeline-content">Annual review</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div style="margin-top: 16px;">
+                        <h3 style="font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Quick Actions</h3>
+                        <div style="display: grid; gap: 8px;">
+                            <button class="btn btn-secondary" style="font-size: 12px;">📄 View Full Text</button>
+                            <button class="btn btn-secondary" style="font-size: 12px;">📊 Impact Report</button>
+                            <button class="btn btn-secondary" style="font-size: 12px;">🏛️ SP Records</button>
+                            <button class="btn btn-secondary" style="font-size: 12px;">📋 Compliance Checklist</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Policy Categories -->
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h2 class="card-title">POLICY CATEGORIES & STATUS</h2>
+                        <button class="btn btn-secondary">View All Policies</button>
+                    </div>
+
+                    <div class="policy-grid">
+                        <div class="policy-card">
+                            <div class="policy-header">
+                                <div class="policy-title">💼 Business & Commerce</div>
+                                <div class="policy-status status-active">ACTIVE</div>
+                            </div>
+                            <div class="policy-details">
+                                23 ordinances • 85% compliance • 2 amendments pending
+                            </div>
+                        </div>
+                        <div class="policy-card">
+                            <div class="policy-header">
+                                <div class="policy-title">🏥 Health & Sanitation</div>
+                                <div class="policy-status status-active">ACTIVE</div>
+                            </div>
+                            <div class="policy-details">
+                                18 ordinances • 92% compliance • Fully implemented
+                            </div>
+                        </div>
+                        <div class="policy-card">
+                            <div class="policy-header">
+                                <div class="policy-title">🌳 Environment</div>
+                                <div class="policy-status status-review">UNDER REVIEW</div>
+                            </div>
+                            <div class="policy-details">
+                                15 ordinances • 68% compliance • 3 gaps identified
+                            </div>
+                        </div>
+                        <div class="policy-card">
+                            <div class="policy-header">
+                                <div class="policy-title">🚦 Traffic & Transport</div>
+                                <div class="policy-status status-amend">AMENDMENT</div>
+                            </div>
+                            <div class="policy-details">
+                                12 ordinances • 75% compliance • Revision in progress
+                            </div>
+                        </div>
+                        <div class="policy-card">
+                            <div class="policy-header">
+                                <div class="policy-title">🏗️ Infrastructure</div>
+                                <div class="policy-status status-active">ACTIVE</div>
+                            </div>
+                            <div class="policy-details">
+                                28 ordinances • 88% compliance • Well-implemented
+                            </div>
+                        </div>
+                        <div class="policy-card">
+                            <div class="policy-header">
+                                <div class="policy-title">💰 Revenue & Taxation</div>
+                                <div class="policy-status status-active">ACTIVE</div>
+                            </div>
+                            <div class="policy-details">
+                                35 ordinances • 94% compliance • High impact
+                            </div>
+                        </div>
+                        <div class="policy-card">
+                            <div class="policy-header">
+                                <div class="policy-title">🎓 Education & Youth</div>
+                                <div class="policy-status status-active">ACTIVE</div>
+                            </div>
+                            <div class="policy-details">
+                                10 ordinances • 87% compliance • Positive outcomes
+                            </div>
+                        </div>
+                        <div class="policy-card">
+                            <div class="policy-header">
+                                <div class="policy-title">🚨 Public Safety</div>
+                                <div class="policy-status status-expired">2 EXPIRED</div>
+                            </div>
+                            <div class="policy-details">
+                                20 ordinances • 82% compliance • Renewal needed
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ordinance List with Compliance -->
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h2 class="card-title">ORDINANCE IMPLEMENTATION STATUS</h2>
+                        <button class="btn btn-secondary">Export Report</button>
+                    </div>
+
+                    <div class="ordinance-list">
+                        <div class="ordinance-item">
+                            <div class="ordinance-header">
+                                <div class="ordinance-title">📋 Ord. 2025-001: Business Permit Requirements</div>
+                                <div class="compliance-badge compliance-full">95% COMPLIANT</div>
+                            </div>
+                            <div class="ordinance-details">
+                                <span>📅 Enacted: Jan 15, 2025</span>
+                                <span>🏢 Lead: Business Permits</span>
+                                <span>✅ 234/245 businesses compliant</span>
+                                <span>💰 Revenue: ₱2.5M/month</span>
+                                <span>📊 Impact: High</span>
+                            </div>
+                        </div>
+
+                        <div class="ordinance-item">
+                            <div class="ordinance-header">
+                                <div class="ordinance-title">📋 Ord. 2024-045: Plastic Ban & Waste Management</div>
+                                <div class="compliance-badge compliance-partial">68% COMPLIANT</div>
+                            </div>
+                            <div class="ordinance-details">
+                                <span>📅 Enacted: Jun 1, 2024</span>
+                                <span>🌳 Lead: Environment Office</span>
+                                <span>⚠️ 156/230 establishments compliant</span>
+                                <span>🚩 3 major violations</span>
+                                <span>📊 Impact: Medium</span>
+                            </div>
+                        </div>
+
+                        <div class="ordinance-item">
+                            <div class="ordinance-header">
+                                <div class="ordinance-title">📋 Ord. 2024-032: Market Operations & Vendor Regulation</div>
+                                <div class="compliance-badge compliance-full">88% COMPLIANT</div>
+                            </div>
+                            <div class="ordinance-details">
+                                <span>📅 Enacted: Apr 15, 2024</span>
+                                <span>🏪 Lead: Market Admin</span>
+                                <span>✅ 450/510 vendors registered</span>
+                                <span>💰 Revenue: ₱850K/month</span>
+                                <span>📊 Impact: High</span>
+                            </div>
+                        </div>
+
+                        <div class="ordinance-item">
+                            <div class="ordinance-header">
+                                <div class="ordinance-title">📋 Res. 2025-015: Supplemental Budget Appropriation</div>
+                                <div class="compliance-badge compliance-full">100% COMPLIANT</div>
+                            </div>
+                            <div class="ordinance-details">
+                                <span>📅 Enacted: Jul 1, 2025</span>
+                                <span>💰 Lead: Budget Office</span>
+                                <span>✅ Fully implemented</span>
+                                <span>📊 ₱50M allocated</span>
+                                <span>📊 Impact: Critical</span>
+                            </div>
+                        </div>
+
+                        <div class="ordinance-item">
+                            <div class="ordinance-header">
+                                <div class="ordinance-title">📋 Ord. 2023-067: Traffic Management Scheme</div>
+                                <div class="compliance-badge compliance-low">45% COMPLIANT</div>
+                            </div>
+                            <div class="ordinance-details">
+                                <span>📅 Enacted: Sep 1, 2023</span>
+                                <span>🚦 Lead: Traffic Management</span>
+                                <span>⚠️ Low enforcement</span>
+                                <span>🚩 Amendment recommended</span>
+                                <span>📊 Impact: Low</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Policy Gap Analysis -->
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h2 class="card-title">POLICY GAP ANALYSIS & RECOMMENDATIONS</h2>
+                        <button class="btn btn-secondary">Full Analysis</button>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div style="padding: 12px; background-color: #fee2e2; border-radius: 6px;">
+                            <h3 style="font-size: 12px; font-weight: 600; color: #991b1b; margin-bottom: 8px;">CRITICAL GAPS</h3>
+                            <div style="font-size: 11px; line-height: 1.8;">
+                                • Digital transactions policy needed<br>
+                                • Disaster risk reduction updates required<br>
+                                • Data privacy ordinance missing<br>
+                                • Climate change adaptation policy gap
+                            </div>
+                        </div>
+                        <div style="padding: 12px; background-color: #fef3c7; border-radius: 6px;">
+                            <h3 style="font-size: 12px; font-weight: 600; color: #92400e; margin-bottom: 8px;">AMENDMENTS NEEDED</h3>
+                            <div style="font-size: 11px; line-height: 1.8;">
+                                • Traffic ordinance - outdated provisions<br>
+                                • Business permit fees - adjustment needed<br>
+                                • Market regulations - vendor concerns<br>
+                                • Curfew ordinance - review hours
+                            </div>
+                        </div>
+                        <div style="padding: 12px; background-color: #dbeafe; border-radius: 6px;">
+                            <h3 style="font-size: 12px; font-weight: 600; color: #1e40af; margin-bottom: 8px;">UNDER REVIEW</h3>
+                            <div style="font-size: 11px; line-height: 1.8;">
+                                • Environmental protection measures<br>
+                                • Zoning ordinance updates<br>
+                                • Public market modernization<br>
+                                • Tourism development policies
+                            </div>
+                        </div>
+                        <div style="padding: 12px; background-color: #d1fae5; border-radius: 6px;">
+                            <h3 style="font-size: 12px; font-weight: 600; color: #065f46; margin-bottom: 8px;">BEST PRACTICES</h3>
+                            <div style="font-size: 11px; line-height: 1.8;">
+                                • Revenue collection - 95% efficiency<br>
+                                • Health protocols - fully compliant<br>
+                                • Business permits - streamlined<br>
+                                • Budget utilization - transparent
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Form submission
+        document.getElementById('policy-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('📋 Policy Evaluation Submitted\n\n✅ Compliance data recorded\n📊 Impact assessment updated\n📈 Dashboard refreshed\n🏛️ SP records synced\n🔔 Department heads notified\n\nEvaluation ID: EVAL-2025-089');
+        });
+
+        // Mayor action buttons
+        document.querySelectorAll('.mayor-action-buttons button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent.includes('Request Amendment')) {
+                    alert('📋 Amendment Request\n\nPreparing legislative request:\n• Ordinance identified\n• Issues documented\n• Proposed changes drafted\n• Legal review initiated\n• SP agenda submission ready\n\nProceed to draft amendment?');
+                } else if (this.textContent.includes('Submit to SP')) {
+                    alert('🏛️ Submit to Sangguniang Bayan\n\nLegislative package:\n• Policy evaluation report\n• Compliance data\n• Impact assessment\n• Recommended amendments\n• Supporting documents\n\nSchedule for next SP session?');
+                } else if (this.textContent.includes('Impact Study')) {
+                    alert('📊 Comprehensive Impact Study\n\nAnalyzing:\n• Economic impact: ₱12.5M revenue\n• Public benefit: 8.5/10 score\n• Department efficiency: 78% improved\n• Citizen satisfaction: 4.2/5 rating\n• Implementation cost: ₱3.2M\n\nGenerate full report?');
+                } else if (this.textContent.includes('Draft Revision')) {
+                    alert('📝 Draft Policy Revision\n\nStarting revision process:\n• Current text loaded\n• Issues highlighted\n• Amendment template ready\n• Legal framework checked\n• Stakeholders identified\n\nOpen revision editor?');
+                }
+            });
+        });
+
+        // Policy category cards
+        document.querySelectorAll('.policy-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const category = this.querySelector('.policy-title').textContent;
+                const status = this.querySelector('.policy-status').textContent;
+                alert(`Policy Category: ${category}\n\nStatus: ${status}\n\nView:\n• All ordinances in category\n• Compliance metrics\n• Implementation timeline\n• Department reports\n• Gap analysis\n• Recommendations`);
+            });
+        });
+
+        // Ordinance items
+        document.querySelectorAll('.ordinance-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const title = this.querySelector('.ordinance-title').textContent;
+                const compliance = this.querySelector('.compliance-badge').textContent;
+                alert(`Ordinance Details: ${title}\n\nCompliance: ${compliance}\n\nOptions:\n• View full text\n• Implementation report\n• Compliance breakdown\n• Department feedback\n• Amendment history\n• Impact metrics`);
+            });
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Button actions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const btnText = this.textContent;
+                
+                if (btnText === 'REVIEW GAPS') {
+                    alert('🔍 Policy Gap Analysis\n\nIdentified gaps:\n1. Digital services regulation\n2. Climate adaptation measures\n3. Data privacy protection\n4. E-commerce taxation\n5. Pandemic response protocols\n\nPrioritize for legislation?');
+                } else if (btnText === 'Import from SP') {
+                    alert('🏛️ Import from SP Records\n\nConnecting to Sangguniang Bayan...\n\nAvailable imports:\n• Recent ordinances (15)\n• Pending resolutions (8)\n• Committee reports (12)\n• Session minutes (23)\n\nSelect items to import...');
+                } else if (btnText === 'Generate Report') {
+                    alert('📊 Generating Policy Report\n\nIncluding:\n• Compliance summary\n• Impact assessment\n• Department performance\n• Gap analysis\n• Recommendations\n• Financial impact\n\nFormat: PDF | Excel | Dashboard');
+                } else if (btnText === 'View All Policies') {
+                    alert('📚 Complete Policy Database\n\n245 Active Ordinances\n56 Resolutions\n23 Executive Orders\n12 Administrative Orders\n\nFilter by:\n• Category\n• Year\n• Department\n• Compliance status');
+                } else if (btnText === 'Export Report') {
+                    alert('📄 Export Compliance Report\n\nReport contents:\n• Executive summary\n• Ordinance list with status\n• Compliance metrics\n• Department breakdowns\n• Recommendations\n• Action items\n\nFile: Policy_Review_2025.pdf');
+                } else if (btnText === 'Full Analysis') {
+                    alert('📈 Complete Gap Analysis\n\nAnalyzing:\n• 245 active policies\n• 12 departments\n• 5-year trend data\n• Citizen feedback\n• Best practices benchmark\n• Legal compliance\n\nEstimated time: 5 minutes');
+                } else if (btnText === 'View Full Text') {
+                    alert('📄 Opening Document Viewer\n\nDocument: Ordinance 2025-001\nPages: 12\nFormat: PDF\n\nFeatures:\n• Search text\n• Highlight sections\n• Add annotations\n• Export options');
+                } else if (btnText === 'Impact Report') {
+                    alert('📊 Impact Assessment Report\n\nMetrics analyzed:\n• Economic impact\n• Social benefits\n• Environmental effects\n• Administrative efficiency\n• Public satisfaction\n\nTime period: 6 months');
+                } else if (btnText === 'SP Records') {
+                    alert('🏛️ Sangguniang Bayan Records\n\nAccessing:\n• Session minutes\n• Voting records\n• Committee reports\n• Public hearings\n• Amendments log\n\nLast sync: 2 hours ago');
+                } else if (btnText === 'Compliance Checklist') {
+                    alert('✅ Compliance Checklist\n\nDepartment: Business Permits\nOrdinance: 2025-001\n\nChecklist items:\n☑️ Guidelines issued\n☑️ Staff trained\n☑️ Systems updated\n☑️ Public informed\n☐ Full implementation\n\n95% complete');
+                }
+            });
+        });
+
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('Searching policies:', searchTerm);
+        });
+
+        // Department compliance items
+        document.querySelectorAll('.dept-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const dept = this.querySelector('.dept-name').textContent;
+                const score = this.querySelector('.dept-score').textContent;
+                alert(`Department: ${dept}\nCompliance Score: ${score}\n\nView:\n• Detailed compliance report\n• Policy implementation status\n• Issues and challenges\n• Resource requirements\n• Timeline adherence`);
+            });
+        });
+
+        // Timeline items
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const date = this.querySelector('.timeline-date').textContent;
+                const content = this.querySelector('.timeline-content').textContent;
+                alert(`Timeline Event\n\nDate: ${date}\nMilestone: ${content}\n\nView:\n• Detailed activities\n• Responsible parties\n• Deliverables\n• Status updates\n• Next steps`);
+            });
+        });
+
+        // Compliance meter animation
+        const complianceIndicator = document.querySelector('.compliance-indicator');
+        if (complianceIndicator) {
+            setInterval(function() {
+                const currentPos = parseInt(complianceIndicator.style.left);
+                const variance = Math.random() * 4 - 2; // ±2% variance
+                const newPos = Math.max(0, Math.min(100, currentPos + variance));
+                complianceIndicator.style.left = newPos + '%';
+            }, 3000);
+        }
+
+        // Impact score updates
+        document.querySelectorAll('.impact-score').forEach(score => {
+            score.addEventListener('click', function() {
+                const metric = this.nextElementSibling.textContent;
+                alert(`Impact Metric: ${metric}\n\nCurrent Score: ${this.textContent}\n\nTrend: Improving\nBaseline: 6.5/10\nTarget: 9.0/10\n\nView detailed analysis?`);
+            });
+        });
+    </script>
+</body>
+</html>

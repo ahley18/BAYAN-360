@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency & Disaster Alert Console - LCE Strategic GIS Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #374151;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            background-color: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            background-color: #4b5563;
+            color: white;
+            padding: 8px 12px 8px 40px;
+            border: none;
+            border-radius: 4px;
+            width: 300px;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0.6;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            background-color: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .alert-badge {
+            background-color: #ef4444;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background-color: white;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 12px;
+            color: #6b7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .nav-item.active {
+            background-color: #dc2626;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Alert Status Grid */
+        .alert-status-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .status-card {
+            background-color: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .status-critical::before {
+            background-color: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-warning::before {
+            background-color: #f59e0b;
+        }
+
+        .status-monitoring::before {
+            background-color: #3b82f6;
+        }
+
+        .status-safe::before {
+            background-color: #10b981;
+        }
+
+        .status-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .status-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .status-label {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        /* Alert Map */
+        .alert-map {
+            height: 450px;
+            background-color: #1f2937;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Alert Zones */
+        .alert-zone {
+            position: absolute;
+            border-radius: 50%;
+            animation: alertPulse 2s infinite;
+        }
+
+        @keyframes alertPulse {
+            0%, 100% { 
+                opacity: 0.8;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.4;
+                transform: scale(1.2);
+            }
+        }
+
+        .zone-critical {
+            background: radial-gradient(circle, rgba(239,68,68,0.9) 0%, rgba(239,68,68,0.2) 70%);
+            border: 2px solid #ef4444;
+        }
+
+        .zone-warning {
+            background: radial-gradient(circle, rgba(245,158,11,0.9) 0%, rgba(245,158,11,0.2) 70%);
+            border: 2px solid #f59e0b;
+        }
+
+        .zone-monitoring {
+            background: radial-gradient(circle, rgba(59,130,246,0.9) 0%, rgba(59,130,246,0.2) 70%);
+            border: 2px solid #3b82f6;
+        }
+
+        /* Alert Icons on Map */
+        .alert-icon-map {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-critical {
+            background-color: #ef4444;
+            color: white;
+            animation: blink 1s infinite;
+        }
+
+        .icon-warning {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .icon-monitoring {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        /* Alert List */
+        .alert-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .alert-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .alert-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .alert-priority {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-critical {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .priority-high {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .priority-medium {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .priority-low {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .alert-details {
+            font-size: 11px;
+            color: #6b7280;
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #dc2626;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f3f4f6;
+        }
+
+        .btn-emergency {
+            background-color: #ef4444;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .btn-warning {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        /* Full width */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Process Flow */
+        .process-flow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            padding: 6px 12px;
+            background-color: white;
+            border-radius: 4px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .flow-arrow {
+            color: #9ca3af;
+        }
+
+        .flow-active {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        /* Command Center */
+        .command-center {
+            background-color: #fee2e2;
+            border: 2px solid #ef4444;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+
+        .command-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .command-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        /* Response Teams */
+        .response-teams {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .team-card {
+            padding: 8px;
+            background-color: #f9fafb;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .team-card:hover {
+            background-color: #f3f4f6;
+        }
+
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .team-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .team-status {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .status-ready {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-deployed {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-standby {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Weather Widget */
+        .weather-widget {
+            padding: 12px;
+            background-color: #dbeafe;
+            border: 1px solid #93c5fd;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .weather-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .weather-temp {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e40af;
+        }
+
+        .weather-condition {
+            font-size: 12px;
+            color: #1e3a8a;
+            text-transform: uppercase;
+        }
+
+        /* Resource Tracker */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .resource-item {
+            text-align: center;
+            padding: 8px;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+        }
+
+        .resource-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .resource-label {
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        /* Timeline */
+        .timeline {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 12px;
+            padding: 8px;
+            border-left: 2px solid #e5e7eb;
+            margin-left: 8px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 12px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #6b7280;
+        }
+
+        .timeline-item.critical::before {
+            background-color: #ef4444;
+        }
+
+        .timeline-time {
+            font-size: 11px;
+            color: #6b7280;
+            min-width: 50px;
+        }
+
+        .timeline-content {
+            font-size: 12px;
+            color: #374151;
+        }
+
+        /* Critical Alert Banner */
+        .critical-alert {
+            background-color: #fee2e2;
+            border: 2px solid #ef4444;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .critical-icon {
+            font-size: 24px;
+            color: #ef4444;
+            animation: blink 1s infinite;
+        }
+
+        .critical-content {
+            flex: 1;
+        }
+
+        .critical-title {
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 2px;
+            font-size: 14px;
+        }
+
+        .critical-description {
+            font-size: 12px;
+            color: #7f1d1d;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                🏛️ OFFICE OF THE MAYOR
+            </div>
+            <div class="search-container">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" class="search-input" placeholder="Search incidents, alerts, or response teams...">
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="alert-badge">
+                🚨 3 ACTIVE ALERTS
+            </div>
+            <span>EMERGENCY CONSOLE</span>
+            <div class="status-badge">
+                ✅ ACTIVATE COMMAND
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav>
+                <div class="nav-item">
+                    <span>🧭</span>
+                    <span>EXECUTIVE DASHBOARD</span>
+                </div>
+                <div class="nav-item">
+                    <span>🗺️</span>
+                    <span>PROJECT MONITORING & GEOTRACKER</span>
+                </div>
+                <div class="nav-item">
+                    <span>📈</span>
+                    <span>DEPARTMENT PERFORMANCE SCORECARDS</span>
+                </div>
+                <div class="nav-item">
+                    <span>💬</span>
+                    <span>CITIZEN FEEDBACK & PUBLIC SENTIMENT</span>
+                </div>
+                <div class="nav-item">
+                    <span>📊</span>
+                    <span>BUDGET UTILIZATION & FUND TRACKING</span>
+                </div>
+                <div class="nav-item active">
+                    <span>🚨</span>
+                    <span>EMERGENCY & DISASTER ALERT CONSOLE</span>
+                </div>
+                <div class="nav-item">
+                    <span>🧾</span>
+                    <span>EXECUTIVE ORDERS & MEMO GENERATOR</span>
+                </div>
+                <div class="nav-item">
+                    <span>🧠</span>
+                    <span>POLICY REVIEW & LEGISLATIVE COORDINATION</span>
+                </div>
+                <div class="nav-item">
+                    <span>🏘️</span>
+                    <span>BARANGAY AGGREGATED REPORTS</span>
+                </div>
+                <div class="nav-item">
+                    <span>📁</span>
+                    <span>COMPLIANCE & AUDIT FLAGS MONITOR</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Emergency & Disaster Alert Console</h1>
+                <p class="page-subtitle">Notification center for disaster, health, and safety alerts linked to DRRMO, Health, PNP, BFP, and GIS risk layers</p>
+            </div>
+
+            <!-- Critical Alert Banner -->
+            <div class="critical-alert">
+                <div class="critical-icon">⚠️</div>
+                <div class="critical-content">
+                    <div class="critical-title">CRITICAL: Flood Warning - Riverside Barangay</div>
+                    <div class="critical-description">Heavy rainfall detected • River level at 7.2m (critical: 8m) • 2,500 residents at risk • Evacuation protocol on standby</div>
+                </div>
+                <button class="btn btn-emergency" style="padding: 8px 16px;">ACTIVATE RESPONSE</button>
+            </div>
+
+            <!-- Alert Status Overview -->
+            <div class="alert-status-grid">
+                <div class="status-card status-critical">
+                    <div class="status-icon">🌊</div>
+                    <div class="status-value">3</div>
+                    <div class="status-label">Flood Alerts</div>
+                </div>
+                <div class="status-card status-warning">
+                    <div class="status-icon">🔥</div>
+                    <div class="status-value">1</div>
+                    <div class="status-label">Fire Incidents</div>
+                </div>
+                <div class="status-card status-monitoring">
+                    <div class="status-icon">🏥</div>
+                    <div class="status-value">2</div>
+                    <div class="status-label">Health Alerts</div>
+                </div>
+                <div class="status-card status-safe">
+                    <div class="status-icon">🚔</div>
+                    <div class="status-value">5</div>
+                    <div class="status-label">PNP Units Ready</div>
+                </div>
+                <div class="status-card status-safe">
+                    <div class="status-icon">🚒</div>
+                    <div class="status-value">3</div>
+                    <div class="status-label">BFP Units Ready</div>
+                </div>
+                <div class="status-card status-monitoring">
+                    <div class="status-icon">🚑</div>
+                    <div class="status-value">8</div>
+                    <div class="status-label">Ambulances</div>
+                </div>
+            </div>
+
+            <!-- Process Flow -->
+            <div class="process-flow">
+                <span class="flow-step">Alert Triggered</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step flow-active">Notification Sent</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Response Teams Alerted</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Mayor Review</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step">Protocol Activated</span>
+            </div>
+
+            <div class="grid">
+                <!-- Alert Map and Response -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">REAL-TIME ALERT MAP & GIS RISK LAYERS</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <select class="form-select" style="width: 120px; padding: 6px;">
+                                <option>All Alerts</option>
+                                <option>Flood Risk</option>
+                                <option>Fire Incidents</option>
+                                <option>Health Emergency</option>
+                            </select>
+                            <button class="btn btn-secondary">Full Screen</button>
+                        </div>
+                    </div>
+
+                    <div class="alert-map">
+                        <!-- Risk Zones -->
+                        <div class="alert-zone zone-critical" style="left: 25%; top: 30%; width: 150px; height: 150px;"></div>
+                        <div class="alert-zone zone-warning" style="left: 60%; top: 50%; width: 100px; height: 100px;"></div>
+                        <div class="alert-zone zone-monitoring" style="left: 45%; top: 20%; width: 80px; height: 80px;"></div>
+
+                        <!-- Alert Icons -->
+                        <div class="alert-icon-map icon-critical" style="left: 25%; top: 30%;" title="Flood Alert - Critical">🌊</div>
+                        <div class="alert-icon-map icon-warning" style="left: 60%; top: 50%;" title="Fire Incident">🔥</div>
+                        <div class="alert-icon-map icon-monitoring" style="left: 45%; top: 20%;" title="Health Alert">🏥</div>
+                        <div class="alert-icon-map icon-critical" style="left: 35%; top: 60%;" title="Flood Risk Area">⚠️</div>
+                        <div class="alert-icon-map icon-monitoring" style="left: 70%; top: 35%;" title="Medical Emergency">🚑</div>
+
+                        <!-- Response Units -->
+                        <div style="position: absolute; left: 20%; top: 50%; color: white; font-size: 11px; text-align: center;">
+                            <div style="background-color: #10b981; padding: 4px 8px; border-radius: 4px;">
+                                🚔 PNP-01<br>Responding
+                            </div>
+                        </div>
+                        <div style="position: absolute; left: 55%; top: 60%; color: white; font-size: 11px; text-align: center;">
+                            <div style="background-color: #10b981; padding: 4px 8px; border-radius: 4px;">
+                                🚒 BFP-02<br>En Route
+                            </div>
+                        </div>
+                        <div style="position: absolute; left: 40%; top: 40%; color: white; font-size: 11px; text-align: center;">
+                            <div style="background-color: #f59e0b; padding: 4px 8px; border-radius: 4px;">
+                                🚑 EMS-03<br>Standby
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-around; margin-top: 12px; padding: 8px; background-color: #f9fafb; border-radius: 4px;">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <div style="width: 12px; height: 12px; background-color: #ef4444; border-radius: 50%;"></div>
+                            <span style="font-size: 11px;">Critical</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <div style="width: 12px; height: 12px; background-color: #f59e0b; border-radius: 50%;"></div>
+                            <span style="font-size: 11px;">Warning</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <div style="width: 12px; height: 12px; background-color: #3b82f6; border-radius: 50%;"></div>
+                            <span style="font-size: 11px;">Monitoring</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <div style="width: 12px; height: 12px; background-color: #10b981; border-radius: 50%;"></div>
+                            <span style="font-size: 11px;">Safe</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Incident Report Form & Command -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">INCIDENT REPORT ENTRY</h2>
+                    </div>
+
+                    <!-- Weather Widget -->
+                    <div class="weather-widget">
+                        <div class="weather-header">
+                            <div>
+                                <div class="weather-temp">28°C</div>
+                                <div class="weather-condition">Heavy Rainfall</div>
+                            </div>
+                            <div style="font-size: 24px;">🌧️</div>
+                        </div>
+                        <div style="font-size: 11px; margin-top: 4px;">
+                            Wind: 25 km/h • Humidity: 85% • Visibility: 3km
+                        </div>
+                    </div>
+
+                    <form id="incident-form">
+                        <div class="form-group">
+                            <label class="form-label">Incident Type *</label>
+                            <select class="form-select" required>
+                                <option value="">Select Type...</option>
+                                <option>Flood/Inundation</option>
+                                <option>Fire Incident</option>
+                                <option>Landslide</option>
+                                <option>Medical Emergency</option>
+                                <option>Traffic Accident</option>
+                                <option>Crime/Security</option>
+                                <option>Epidemic/Health</option>
+                                <option>Earthquake</option>
+                                <option>Typhoon/Storm</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Location *</label>
+                            <input type="text" class="form-input" placeholder="Specific location or barangay" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Severity Level *</label>
+                                <select class="form-select" required>
+                                    <option value="">Select...</option>
+                                    <option>Critical</option>
+                                    <option>High</option>
+                                    <option>Medium</option>
+                                    <option>Low</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Affected Count</label>
+                                <input type="number" class="form-input" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Reporting Source</label>
+                            <select class="form-select">
+                                <option>DRRMO</option>
+                                <option>Barangay Report</option>
+                                <option>PNP</option>
+                                <option>BFP</option>
+                                <option>Health Office</option>
+                                <option>Citizen Report</option>
+                                <option>Weather Station</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Response Required</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <label style="font-size: 12px;"><input type="checkbox"> DRRMO Team</label>
+                                <label style="font-size: 12px;"><input type="checkbox"> PNP Units</label>
+                                <label style="font-size: 12px;"><input type="checkbox"> BFP Units</label>
+                                <label style="font-size: 12px;"><input type="checkbox"> Medical Team</label>
+                                <label style="font-size: 12px;"><input type="checkbox"> Rescue Team</label>
+                                <label style="font-size: 12px;"><input type="checkbox"> Evacuation</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Incident Details</label>
+                            <textarea class="form-textarea" placeholder="Describe the incident, immediate needs, and current situation..."></textarea>
+                        </div>
+
+                        <!-- Mayor's Command Center -->
+                        <div class="command-center">
+                            <div class="command-header">🎯 Mayor's Rapid Response Protocol</div>
+                            <div class="command-buttons">
+                                <button type="button" class="btn btn-emergency">🚨 CODE RED</button>
+                                <button type="button" class="btn btn-warning">⚠️ CODE YELLOW</button>
+                                <button type="button" class="btn btn-success">✅ ALL CLEAR</button>
+                                <button type="button" class="btn btn-primary">📢 PUBLIC ALERT</button>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <textarea class="form-textarea" placeholder="Mayor's emergency directive..." style="min-height: 40px;"></textarea>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 16px;">
+                            <button type="submit" class="btn btn-emergency">SUBMIT ALERT</button>
+                            <button type="button" class="btn btn-secondary">Save as Draft</button>
+                        </div>
+                    </form>
+
+                    <!-- Resource Tracker -->
+                    <div style="margin-top: 16px; padding: 12px; background-color: #f9fafb; border-radius: 6px;">
+                        <h3 style="font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">Available Resources</h3>
+                        <div class="resource-grid">
+                            <div class="resource-item">
+                                <div class="resource-number">15</div>
+                                <div class="resource-label">Rescue Teams</div>
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-number">8</div>
+                                <div class="resource-label">Ambulances</div>
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-number">250</div>
+                                <div class="resource-label">Evacuation Cap.</div>
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-number">500</div>
+                                <div class="resource-label">Relief Packs</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Alerts List -->
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h2 class="card-title">ACTIVE ALERTS & INCIDENT LOG</h2>
+                        <button class="btn btn-secondary">Export Log</button>
+                    </div>
+
+                    <div class="alert-list">
+                        <div class="alert-item">
+                            <div class="alert-header">
+                                <div class="alert-title">🌊 Flood Warning - Riverside Barangay</div>
+                                <div class="alert-priority priority-critical">CRITICAL</div>
+                            </div>
+                            <div class="alert-details">
+                                <span>📍 Riverside Areas</span>
+                                <span>⏰ 2 hours ago</span>
+                                <span>👥 2,500 at risk</span>
+                                <span>🚨 DRRMO responding</span>
+                                <span>📊 River: 7.2m</span>
+                            </div>
+                        </div>
+
+                        <div class="alert-item">
+                            <div class="alert-header">
+                                <div class="alert-title">🔥 Fire Incident - Commercial District</div>
+                                <div class="alert-priority priority-high">HIGH</div>
+                            </div>
+                            <div class="alert-details">
+                                <span>📍 Market Area</span>
+                                <span>⏰ 45 mins ago</span>
+                                <span>👥 50 evacuated</span>
+                                <span>🚒 BFP on scene</span>
+                                <span>📊 Under control</span>
+                            </div>
+                        </div>
+
+                        <div class="alert-item">
+                            <div class="alert-header">
+                                <div class="alert-title">🏥 Health Alert - Dengue Cases Rise</div>
+                                <div class="alert-priority priority-medium">MEDIUM</div>
+                            </div>
+                            <div class="alert-details">
+                                <span>📍 Multiple barangays</span>
+                                <span>⏰ This week</span>
+                                <span>👥 23 cases</span>
+                                <span>🏥 DOH coordinating</span>
+                                <span>📊 Monitoring</span>
+                            </div>
+                        </div>
+
+                        <div class="alert-item">
+                            <div class="alert-header">
+                                <div class="alert-title">🌧️ Weather Advisory - Heavy Rainfall Expected</div>
+                                <div class="alert-priority priority-medium">MEDIUM</div>
+                            </div>
+                            <div class="alert-details">
+                                <span>📍 Municipality-wide</span>
+                                <span>⏰ Next 24 hours</span>
+                                <span>👥 All residents</span>
+                                <span>🌦️ PAGASA bulletin</span>
+                                <span>📊 Monitoring</span>
+                            </div>
+                        </div>
+
+                        <div class="alert-item">
+                            <div class="alert-header">
+                                <div class="alert-title">🚗 Traffic Accident - Main Highway</div>
+                                <div class="alert-priority priority-low">LOW</div>
+                            </div>
+                            <div class="alert-details">
+                                <span>📍 National Road</span>
+                                <span>⏰ 1 hour ago</span>
+                                <span>👥 3 injured</span>
+                                <span>🚔 PNP responded</span>
+                                <span>📊 Cleared</span>
+                            </div>
+                        </div>
+
+                        <div class="alert-item">
+                            <div class="alert-header">
+                                <div class="alert-title">💧 Water Supply Interruption</div>
+                                <div class="alert-priority priority-low">LOW</div>
+                            </div>
+                            <div class="alert-details">
+                                <span>📍 Barangay Centro</span>
+                                <span>⏰ Scheduled</span>
+                                <span>👥 500 households</span>
+                                <span>💧 Maintenance work</span>
+                                <span>📊 6 hours</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Response Teams Status -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">RESPONSE TEAMS STATUS</h2>
+                        <button class="btn btn-secondary">Mobilize All</button>
+                    </div>
+
+                    <div class="response-teams">
+                        <div class="team-card">
+                            <div class="team-info">
+                                <span style="font-size: 16px;">🚨</span>
+                                <span class="team-name">DRRMO Alpha Team</span>
+                            </div>
+                            <span class="team-status status-deployed">DEPLOYED</span>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-info">
+                                <span style="font-size: 16px;">🚔</span>
+                                <span class="team-name">PNP Unit 1</span>
+                            </div>
+                            <span class="team-status status-ready">READY</span>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-info">
+                                <span style="font-size: 16px;">🚒</span>
+                                <span class="team-name">BFP Station 2</span>
+                            </div>
+                            <span class="team-status status-deployed">DEPLOYED</span>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-info">
+                                <span style="font-size: 16px;">🚑</span>
+                                <span class="team-name">EMS Team 1</span>
+                            </div>
+                            <span class="team-status status-standby">STANDBY</span>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-info">
+                                <span style="font-size: 16px;">🏥</span>
+                                <span class="team-name">Medical Response</span>
+                            </div>
+                            <span class="team-status status-ready">READY</span>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-info">
+                                <span style="font-size: 16px;">🛡️</span>
+                                <span class="team-name">Rescue Squad</span>
+                            </div>
+                            <span class="team-status status-standby">STANDBY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Response Timeline -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">RESPONSE TIMELINE</h2>
+                        <button class="btn btn-secondary">Full Log</button>
+                    </div>
+
+                    <div class="timeline">
+                        <div class="timeline-item critical">
+                            <div class="timeline-time">14:30</div>
+                            <div class="timeline-content">
+                                <strong>Flood Alert Triggered</strong><br>
+                                River level reached 7.0m threshold
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">14:32</div>
+                            <div class="timeline-content">
+                                <strong>DRRMO Notified</strong><br>
+                                Alpha team dispatched to Riverside
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">14:35</div>
+                            <div class="timeline-content">
+                                <strong>Mayor Briefed</strong><br>
+                                Evacuation protocol on standby
+                            </div>
+                        </div>
+                        <div class="timeline-item critical">
+                            <div class="timeline-time">14:45</div>
+                            <div class="timeline-content">
+                                <strong>Fire Incident Reported</strong><br>
+                                Commercial district, BFP responding
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">14:48</div>
+                            <div class="timeline-content">
+                                <strong>BFP On Scene</strong><br>
+                                Fire suppression ongoing
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">15:10</div>
+                            <div class="timeline-content">
+                                <strong>Fire Under Control</strong><br>
+                                No casualties, damage assessment ongoing
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">15:30</div>
+                            <div class="timeline-content">
+                                <strong>Weather Update</strong><br>
+                                Heavy rainfall expected to continue
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">16:00</div>
+                            <div class="timeline-content">
+                                <strong>Public Advisory Issued</strong><br>
+                                Flood preparedness reminder sent
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Form submission
+        document.getElementById('incident-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('🚨 ALERT SUBMITTED\n\n✅ Incident logged in system\n📱 Response teams notified\n🔔 Mayor alerted\n📊 GIS layer updated\n📢 Public advisory prepared\n\nResponse protocol activated!');
+        });
+
+        // Alert map icons
+        document.querySelectorAll('.alert-icon-map').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const alertType = this.title;
+                alert(`Alert Details: ${alertType}\n\nLocation: GPS coordinates captured\nTime: ${new Date().toLocaleTimeString()}\nStatus: Active monitoring\nResponse: Teams deployed\n\nClick for full incident report...`);
+            });
+        });
+
+        // Alert zones
+        document.querySelectorAll('.alert-zone').forEach(zone => {
+            zone.addEventListener('click', function() {
+                const zoneType = this.classList.contains('zone-critical') ? 'Critical' :
+                                this.classList.contains('zone-warning') ? 'Warning' : 'Monitoring';
+                alert(`Risk Zone Analysis\n\nLevel: ${zoneType}\nPopulation at risk: 2,500\nEvacuation centers: 3 available\nResources needed: Medical, shelter, food\n\nView detailed risk assessment...`);
+            });
+        });
+
+        // Command center buttons
+        document.querySelectorAll('.command-buttons button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent.includes('CODE RED')) {
+                    alert('🚨 CODE RED ACTIVATED\n\nImmediate actions:\n• All emergency teams mobilized\n• Evacuation centers opened\n• Public warning system activated\n• Council emergency session called\n• Media briefing in 30 minutes\n\nAll departments on high alert!');
+                } else if (this.textContent.includes('CODE YELLOW')) {
+                    alert('⚠️ CODE YELLOW ACTIVATED\n\nPrecautionary measures:\n• Response teams on standby\n• Monitoring intensified\n• Resources pre-positioned\n• Barangays alerted\n• Regular updates every hour\n\nSituation being closely monitored');
+                } else if (this.textContent.includes('ALL CLEAR')) {
+                    alert('✅ ALL CLEAR SIGNAL\n\nStanding down:\n• Emergency status lifted\n• Teams returning to base\n• Normal operations resuming\n• Final assessment ongoing\n• Public advisory to be issued\n\nThank you to all responders!');
+                } else if (this.textContent.includes('PUBLIC ALERT')) {
+                    alert('📢 PUBLIC ALERT SYSTEM\n\nBroadcasting on:\n• SMS blast to all residents\n• Social media channels\n• Radio announcements\n• TV crawlers\n• Barangay PA systems\n• Mobile patrol announcements\n\nMessage: Stay alert, follow evacuation orders');
+                }
+            });
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Alert items
+        document.querySelectorAll('.alert-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const alertTitle = this.querySelector('.alert-title').textContent;
+                alert(`Incident Report: ${alertTitle}\n\nDetailed information:\n• Incident commander on scene\n• Resources deployed\n• Timeline of events\n• Affected areas map\n• Response effectiveness\n• Next steps\n\nOpening full incident dashboard...`);
+            });
+        });
+
+        // Response team cards
+        document.querySelectorAll('.team-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const teamName = this.querySelector('.team-name').textContent;
+                const status = this.querySelector('.team-status').textContent;
+                alert(`${teamName} Details\n\nStatus: ${status}\nPersonnel: 12 members\nEquipment: Fully equipped\nVehicles: 3 units ready\nLast deployment: 2 hours ago\n\nContact team leader?`);
+            });
+        });
+
+        // Button actions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const btnText = this.textContent;
+                
+                if (btnText === 'ACTIVATE RESPONSE') {
+                    alert('🚨 EMERGENCY RESPONSE ACTIVATED\n\nProtocol initiated:\n• DRRMO teams dispatched\n• Evacuation centers prepared\n• Medical teams on standby\n• PNP traffic management\n• Public warnings issued\n\nAll units responding!');
+                } else if (btnText === 'Full Screen') {
+                    alert('🗺️ Full Screen Mode\n\nEnhanced view showing:\n• Real-time incident locations\n• Response unit positions\n• Risk layer overlays\n• Weather radar\n• Traffic conditions\n\nCommand center view activated');
+                } else if (btnText === 'Export Log') {
+                    alert('📄 Export Incident Log\n\nGenerating report with:\n• All active alerts\n• Response timeline\n• Resource deployment\n• Decision points\n• Outcomes\n\nFormat: PDF/Excel\nPeriod: Last 24 hours');
+                } else if (btnText === 'Mobilize All') {
+                    alert('🚨 FULL MOBILIZATION\n\nActivating all units:\n• DRRMO: 5 teams\n• PNP: 8 units\n• BFP: 3 stations\n• Medical: 6 teams\n• Rescue: 4 squads\n\nEstimated response time: 10 minutes\n\nConfirm mobilization order?');
+                } else if (btnText === 'Save as Draft') {
+                    alert('📝 Draft Saved\n\nIncident report saved as draft\nDraft ID: INC-2025-001\n\nYou can complete and submit later');
+                } else if (btnText === 'Full Log') {
+                    alert('📜 Complete Response Log\n\nShowing:\n• 156 events today\n• 23 incidents resolved\n• 3 ongoing situations\n• Response time average: 8 minutes\n\nExport full log?');
+                }
+            });
+        });
+
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('Searching incidents:', searchTerm);
+        });
+
+        // Weather widget click
+        document.querySelector('.weather-widget').addEventListener('click', function() {
+            alert('🌦️ Weather Details\n\nCurrent Conditions:\n• Heavy rainfall warning\n• Accumulated: 125mm (6 hours)\n• Wind: 25 km/h NE\n• Visibility: 3km\n• Forecast: Rain continuing\n\nPAGASA Bulletin #12\nFlood-prone areas on alert');
+        });
+
+        // Resource tracker items
+        document.querySelectorAll('.resource-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const resource = this.querySelector('.resource-label').textContent;
+                const count = this.querySelector('.resource-number').textContent;
+                alert(`Resource Details: ${resource}\n\nAvailable: ${count}\nDeployed: Calculating...\nReserve: Checking...\nMaintenance: 2 units\n\nView resource allocation map?`);
+            });
+        });
+
+        // Timeline items
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const time = this.querySelector('.timeline-time').textContent;
+                const content = this.querySelector('.timeline-content').textContent;
+                alert(`Event Details\n\nTime: ${time}\nEvent: ${content}\n\nView:\n• Response details\n• Personnel involved\n• Decisions made\n• Outcomes\n• Follow-up actions`);
+            });
+        });
+
+        // Auto-refresh simulation
+        setInterval(function() {
+            const alertBadge = document.querySelector('.alert-badge');
+            const currentAlerts = Math.floor(Math.random() * 5) + 1;
+            alertBadge.textContent = `🚨 ${currentAlerts} ACTIVE ALERTS`;
+        }, 30000); // Update every 30 seconds
+    </script>
+</body>
+</html>

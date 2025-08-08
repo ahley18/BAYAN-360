@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Overview Map - LCE Strategic GIS Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #374151;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            background-color: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            background-color: #4b5563;
+            color: white;
+            padding: 8px 12px 8px 40px;
+            border: none;
+            border-radius: 4px;
+            width: 300px;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0.6;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            background-color: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background-color: white;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 12px;
+            color: #6b7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .nav-item.active {
+            background-color: #dc2626;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .kpi-card.kpi-green::before {
+            background-color: #10b981;
+        }
+
+        .kpi-card.kpi-blue::before {
+            background-color: #3b82f6;
+        }
+
+        .kpi-card.kpi-yellow::before {
+            background-color: #f59e0b;
+        }
+
+        .kpi-card.kpi-red::before {
+            background-color: #ef4444;
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .kpi-title {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .kpi-icon {
+            font-size: 20px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .kpi-trend {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trend-up {
+            color: #10b981;
+        }
+
+        .trend-down {
+            color: #ef4444;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 500px;
+            background-color: #1f2937;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Layer Controls */
+        .layer-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 6px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 20;
+        }
+
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .layer-checkbox {
+            cursor: pointer;
+        }
+
+        /* Map Overlays */
+        .map-overlay {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .infra-overlay {
+            background-color: rgba(59, 130, 246, 0.3);
+            border: 2px solid #3b82f6;
+        }
+
+        .tax-overlay {
+            background-color: rgba(34, 197, 94, 0.3);
+            border: 2px solid #22c55e;
+        }
+
+        .hazard-overlay {
+            background-color: rgba(239, 68, 68, 0.3);
+            border: 2px solid #ef4444;
+        }
+
+        /* Project Markers */
+        .project-marker {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            pointer-events: all;
+            z-index: 15;
+        }
+
+        .project-marker:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Heat Zones */
+        .heat-zone {
+            position: absolute;
+            border-radius: 4px;
+            opacity: 0.7;
+        }
+
+        .av-high {
+            background-color: #22c55e;
+        }
+
+        .av-medium {
+            background-color: #fbbf24;
+        }
+
+        .av-low {
+            background-color: #ef4444;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #dc2626;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f3f4f6;
+        }
+
+        /* Full width */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Executive Summary */
+        .executive-summary {
+            background-color: #f9fafb;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .summary-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .summary-label {
+            color: #6b7280;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        /* Info Box */
+        .info-box {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #991b1b;
+        }
+
+        /* Priority List */
+        .priority-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .priority-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            border-left: 3px solid;
+            font-size: 13px;
+        }
+
+        .priority-critical {
+            border-left-color: #ef4444;
+        }
+
+        .priority-high {
+            border-left-color: #f59e0b;
+        }
+
+        .priority-medium {
+            border-left-color: #3b82f6;
+        }
+
+        .priority-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        /* Charts Container */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Workflow Status */
+        .workflow-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px;
+            background-color: #f9fafb;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .workflow-step {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .step-active {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .step-completed {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .step-pending {
+            background-color: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .workflow-arrow {
+            color: #9ca3af;
+        }
+
+        /* Decision Matrix */
+        .decision-matrix {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .decision-card {
+            background-color: #f9fafb;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .decision-card:hover {
+            background-color: #f3f4f6;
+            border-color: #dc2626;
+        }
+
+        .decision-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .decision-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-icon {
+            font-size: 20px;
+            color: #dc2626;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 2px;
+        }
+
+        .alert-description {
+            font-size: 12px;
+            color: #7f1d1d;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .quick-stat {
+            text-align: center;
+            padding: 8px;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+        }
+
+        .quick-stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .quick-stat-label {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                🏛️ OFFICE OF THE MAYOR
+            </div>
+            <div class="search-container">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" class="search-input" placeholder="Search projects, zones, or strategic priorities...">
+            </div>
+        </div>
+        <div class="header-right">
+            <span>OFFICE OF THE MAYOR</span>
+            <div class="status-badge">
+                ✅ VIEW
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav>
+                <div class="nav-item active">
+                    <span>🧭</span>
+                    <span>EXECUTIVE DASHBOARD</span>
+                </div>
+                <div class="nav-item">
+                    <span>🗺️</span>
+                    <span>PROJECT MONITORING & GEOTRACKER</span>
+                </div>
+                <div class="nav-item">
+                    <span>📈</span>
+                    <span>DEPARTMENT PERFORMANCE SCORECARDS</span>
+                </div>
+                <div class="nav-item">
+                    <span>💬</span>
+                    <span>CITIZEN FEEDBACK & PUBLIC SENTIMENT</span>
+                </div>
+                <div class="nav-item">
+                    <span>📊</span>
+                    <span>BUDGET UTILIZATION & FUND TRACKING</span>
+                </div>
+                <div class="nav-item">
+                    <span>🚨</span>
+                    <span>EMERGENCY & DISASTER ALERT CONSOLE</span>
+                </div>
+                <div class="nav-item">
+                    <span>🧾</span>
+                    <span>EXECUTIVE ORDERS & MEMO GENERATOR</span>
+                </div>
+                <div class="nav-item">
+                    <span>🧠</span>
+                    <span>POLICY REVIEW & LEGISLATIVE COORDINATION</span>
+                </div>
+                <div class="nav-item">
+                    <span>🏘️</span>
+                    <span>BARANGAY AGGREGATED REPORTS</span>
+                </div>
+                <div class="nav-item">
+                    <span>📁</span>
+                    <span>COMPLIANCE & AUDIT FLAGS MONITOR</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Executive Dashboard</h1>
+                <p class="page-subtitle">Centralized visual summary of all LGU operations for data-driven leadership and governance oversight</p>
+            </div>
+
+            <!-- Alert Banner -->
+            <div class="alert-banner">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <div class="alert-title">Critical Alert: Flood Risk Zone Update</div>
+                    <div class="alert-description">3 infrastructure projects in high-risk areas require immediate review. Revenue impact: ₱12.5M</div>
+                </div>
+                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">REVIEW NOW</button>
+            </div>
+
+            <!-- KPI Dashboard -->
+            <div class="kpi-grid">
+                <div class="kpi-card kpi-green">
+                    <div class="kpi-header">
+                        <div class="kpi-title">Revenue Collection</div>
+                        <div class="kpi-icon">💰</div>
+                    </div>
+                    <div class="kpi-value">₱285.4M</div>
+                    <div class="kpi-trend trend-up">
+                        <span>↑</span>
+                        <span>12.5% vs last year</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card kpi-blue">
+                    <div class="kpi-header">
+                        <div class="kpi-title">Active Projects</div>
+                        <div class="kpi-icon">🏗️</div>
+                    </div>
+                    <div class="kpi-value">47</div>
+                    <div class="kpi-trend trend-up">
+                        <span>↑</span>
+                        <span>8 new this month</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card kpi-yellow">
+                    <div class="kpi-header">
+                        <div class="kpi-title">At-Risk Areas</div>
+                        <div class="kpi-icon">⚠️</div>
+                    </div>
+                    <div class="kpi-value">12</div>
+                    <div class="kpi-trend trend-down">
+                        <span>↓</span>
+                        <span>3 mitigated</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card kpi-red">
+                    <div class="kpi-header">
+                        <div class="kpi-title">Critical Issues</div>
+                        <div class="kpi-icon">🚨</div>
+                    </div>
+                    <div class="kpi-value">5</div>
+                    <div class="kpi-trend">
+                        <span>→</span>
+                        <span>Requires attention</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <!-- Strategic Overview Map -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">INTEGRATED STRATEGIC MAP</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary">Export Map</button>
+                            <button class="btn btn-secondary">Full Screen</button>
+                        </div>
+                    </div>
+
+                    <div class="map-container">
+                        <!-- Layer Controls -->
+                        <div class="layer-controls">
+                            <div style="font-weight: 600; font-size: 12px; margin-bottom: 8px;">Active Layers</div>
+                            <div class="layer-toggle">
+                                <input type="checkbox" class="layer-checkbox" checked>
+                                <span>Infrastructure Projects</span>
+                            </div>
+                            <div class="layer-toggle">
+                                <input type="checkbox" class="layer-checkbox" checked>
+                                <span>Revenue Zones (AV)</span>
+                            </div>
+                            <div class="layer-toggle">
+                                <input type="checkbox" class="layer-checkbox" checked>
+                                <span>Hazard Overlays</span>
+                            </div>
+                            <div class="layer-toggle">
+                                <input type="checkbox" class="layer-checkbox">
+                                <span>Zoning Classes</span>
+                            </div>
+                            <div class="layer-toggle">
+                                <input type="checkbox" class="layer-checkbox">
+                                <span>Service Coverage</span>
+                            </div>
+                        </div>
+
+                        <!-- Infrastructure Projects -->
+                        <div class="project-marker" style="left: 25%; top: 30%;">🏗️</div>
+                        <div class="project-marker" style="left: 50%; top: 25%;">🏥</div>
+                        <div class="project-marker" style="left: 70%; top: 45%;">🏫</div>
+                        <div class="project-marker" style="left: 35%; top: 60%;">🌉</div>
+                        <div class="project-marker" style="left: 60%; top: 70%;">🚰</div>
+
+                        <!-- Revenue Heat Zones -->
+                        <div class="heat-zone av-high" style="left: 20%; top: 20%; width: 150px; height: 120px;"></div>
+                        <div class="heat-zone av-medium" style="left: 45%; top: 35%; width: 180px; height: 140px;"></div>
+                        <div class="heat-zone av-low" style="left: 65%; top: 50%; width: 120px; height: 100px;"></div>
+
+                        <!-- Hazard Overlays -->
+                        <div class="map-overlay hazard-overlay" style="left: 15%; top: 55%; width: 200px; height: 150px; border-radius: 50%;"></div>
+                        <div class="map-overlay hazard-overlay" style="left: 60%; top: 65%; width: 160px; height: 120px; border-radius: 50%;"></div>
+
+                        <!-- Infrastructure Overlays -->
+                        <div class="map-overlay infra-overlay" style="left: 30%; top: 25%; width: 100px; height: 80px;"></div>
+                        <div class="map-overlay infra-overlay" style="left: 55%; top: 40%; width: 120px; height: 90px;"></div>
+                    </div>
+
+                    <div class="quick-stats">
+                        <div class="quick-stat">
+                            <div class="quick-stat-value">₱1.2B</div>
+                            <div class="quick-stat-label">Project Value</div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="quick-stat-value">87%</div>
+                            <div class="quick-stat-label">Coverage</div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="quick-stat-value">15,420</div>
+                            <div class="quick-stat-label">Affected Pop</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Executive Control Panel -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">EXECUTIVE CONTROL PANEL</h2>
+                    </div>
+
+                    <div class="info-box">
+                        🎯 Strategic brief compilation for executive decision-making
+                    </div>
+
+                    <form id="executive-form">
+                        <div class="form-group">
+                            <label class="form-label">Report Type</label>
+                            <select class="form-select" required>
+                                <option value="">Select report type...</option>
+                                <option value="comprehensive">Comprehensive Overview</option>
+                                <option value="infrastructure">Infrastructure Focus</option>
+                                <option value="revenue">Revenue Analysis</option>
+                                <option value="hazard">Risk Assessment</option>
+                                <option value="performance">Performance Review</option>
+                                <option value="strategic">Strategic Planning</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Time Period</label>
+                            <select class="form-select" required>
+                                <option value="weekly">Weekly Summary</option>
+                                <option value="monthly">Monthly Report</option>
+                                <option value="quarterly">Quarterly Review</option>
+                                <option value="annual">Annual Assessment</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Priority Areas</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <label style="font-size: 13px;"><input type="checkbox" checked> Infrastructure Development</label>
+                                <label style="font-size: 13px;"><input type="checkbox" checked> Revenue Generation</label>
+                                <label style="font-size: 13px;"><input type="checkbox" checked> Risk Mitigation</label>
+                                <label style="font-size: 13px;"><input type="checkbox"> Service Delivery</label>
+                                <label style="font-size: 13px;"><input type="checkbox"> Economic Growth</label>
+                                <label style="font-size: 13px;"><input type="checkbox"> Environmental Impact</label>
+                            </div>
+                        </div>
+
+                        <div class="executive-summary">
+                            <div class="summary-header">CURRENT STATUS SUMMARY</div>
+                            <div class="summary-item">
+                                <span class="summary-label">Project Completion Rate:</span>
+                                <span class="summary-value">73%</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Revenue Target Achievement:</span>
+                                <span class="summary-value">89%</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Risk Areas Addressed:</span>
+                                <span class="summary-value">67%</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Citizen Satisfaction:</span>
+                                <span class="summary-value">82%</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Executive Notes</label>
+                            <textarea class="form-textarea" placeholder="Add strategic observations or directives..."></textarea>
+                        </div>
+
+                        <div class="workflow-status">
+                            <span class="workflow-step step-completed">Compile Data</span>
+                            <span class="workflow-arrow">→</span>
+                            <span class="workflow-step step-active">Render Dashboard</span>
+                            <span class="workflow-arrow">→</span>
+                            <span class="workflow-step step-pending">Mayor Review</span>
+                        </div>
+
+                        <div class="decision-matrix">
+                            <div class="decision-card">
+                                <div class="decision-icon">📊</div>
+                                <div class="decision-label">View Analytics</div>
+                            </div>
+                            <div class="decision-card">
+                                <div class="decision-icon">📈</div>
+                                <div class="decision-label">Performance Metrics</div>
+                            </div>
+                            <div class="decision-card">
+                                <div class="decision-icon">🎯</div>
+                                <div class="decision-label">Set Priorities</div>
+                            </div>
+                            <div class="decision-card">
+                                <div class="decision-icon">📋</div>
+                                <div class="decision-label">Generate Brief</div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 16px;">
+                            <button type="submit" class="btn btn-primary">GENERATE EXECUTIVE BRIEF</button>
+                            <button type="button" class="btn btn-secondary">Schedule Presentation</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Charts and Analytics -->
+                <div class="charts-grid full-width">
+                    <div class="chart-card">
+                        <h3 style="font-size: 14px; margin-bottom: 12px; color: #374151;">Infrastructure Progress</h3>
+                        <div style="padding: 10px;">
+                            <!-- Timeline Header -->
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; color: #6b7280;">
+                                <span>Q1 2025</span>
+                                <span>Q2 2025</span>
+                                <span>Q3 2025</span>
+                                <span>Q4 2025</span>
+                            </div>
+                            
+                            <!-- Project Timelines -->
+                            <div style="space-y: 2;">
+                                <!-- Flood Control Project -->
+                                <div style="margin-bottom: 15px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span style="font-size: 11px; font-weight: 600;">Flood Control Phase 2</span>
+                                        <span style="font-size: 10px; color: #ef4444;">DELAYED</span>
+                                    </div>
+                                    <div style="position: relative; height: 20px; background-color: #f3f4f6; border-radius: 10px; overflow: hidden;">
+                                        <div style="position: absolute; left: 10%; width: 45%; height: 100%; background-color: #ef4444; opacity: 0.3;"></div>
+                                        <div style="position: absolute; left: 10%; width: 25%; height: 100%; background-color: #ef4444;"></div>
+                                        <div style="position: absolute; left: 35%; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 600; color: white;">55%</div>
+                                    </div>
+                                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">₱145M • Due: Aug 30</div>
+                                </div>
+
+                                <!-- Health Center Project -->
+                                <div style="margin-bottom: 15px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span style="font-size: 11px; font-weight: 600;">Central Health Facility</span>
+                                        <span style="font-size: 10px; color: #10b981;">ON TRACK</span>
+                                    </div>
+                                    <div style="position: relative; height: 20px; background-color: #f3f4f6; border-radius: 10px; overflow: hidden;">
+                                        <div style="position: absolute; left: 5%; width: 60%; height: 100%; background-color: #10b981; opacity: 0.3;"></div>
+                                        <div style="position: absolute; left: 5%; width: 39%; height: 100%; background-color: #10b981;"></div>
+                                        <div style="position: absolute; left: 44%; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 600; color: white;">65%</div>
+                                    </div>
+                                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">₱125M • Due: Sep 15</div>
+                                </div>
+
+                                <!-- Market Development -->
+                                <div style="margin-bottom: 15px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span style="font-size: 11px; font-weight: 600;">Public Market Development</span>
+                                        <span style="font-size: 10px; color: #f59e0b;">OVER BUDGET</span>
+                                    </div>
+                                    <div style="position: relative; height: 20px; background-color: #f3f4f6; border-radius: 10px; overflow: hidden;">
+                                        <div style="position: absolute; left: 0%; width: 50%; height: 100%; background-color: #f59e0b; opacity: 0.3;"></div>
+                                        <div style="position: absolute; left: 0%; width: 39%; height: 100%; background-color: #f59e0b;"></div>
+                                        <div style="position: absolute; left: 39%; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 600; color: white;">78%</div>
+                                    </div>
+                                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">₱123.5M (+18%) • Due: Aug 15</div>
+                                </div>
+
+                                <!-- Road Network -->
+                                <div style="margin-bottom: 15px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span style="font-size: 11px; font-weight: 600;">Road Network Expansion</span>
+                                        <span style="font-size: 10px; color: #10b981;">ON TRACK</span>
+                                    </div>
+                                    <div style="position: relative; height: 20px; background-color: #f3f4f6; border-radius: 10px; overflow: hidden;">
+                                        <div style="position: absolute; left: 0%; width: 50%; height: 100%; background-color: #10b981; opacity: 0.3;"></div>
+                                        <div style="position: absolute; left: 0%; width: 46%; height: 100%; background-color: #10b981;"></div>
+                                        <div style="position: absolute; left: 40%; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 600; color: white;">92%</div>
+                                    </div>
+                                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">₱89M • Due: Jul 31</div>
+                                </div>
+
+                                <!-- Summary Stats -->
+                                <div style="display: flex; justify-content: space-around; padding: 10px; background-color: #f9fafb; border-radius: 6px; margin-top: 10px;">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 16px; font-weight: bold; color: #374151;">73%</div>
+                                        <div style="font-size: 10px; color: #6b7280;">AVG COMPLETION</div>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 16px; font-weight: bold; color: #10b981;">3</div>
+                                        <div style="font-size: 10px; color: #6b7280;">ON TRACK</div>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 16px; font-weight: bold; color: #ef4444;">2</div>
+                                        <div style="font-size: 10px; color: #6b7280;">AT RISK</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3 style="font-size: 14px; margin-bottom: 12px; color: #374151;">Revenue Trends</h3>
+                        <div style="padding: 10px;">
+                            <!-- Revenue Chart -->
+                            <div style="position: relative; height: 120px; margin-bottom: 10px;">
+                                <!-- Y-axis labels -->
+                                <div style="position: absolute; left: 0; top: 0; font-size: 10px; color: #6b7280;">₱300M</div>
+                                <div style="position: absolute; left: 0; top: 40px; font-size: 10px; color: #6b7280;">₱200M</div>
+                                <div style="position: absolute; left: 0; top: 80px; font-size: 10px; color: #6b7280;">₱100M</div>
+                                
+                                <!-- Chart bars -->
+                                <div style="position: absolute; left: 45px; bottom: 0; right: 0; height: 100px; display: flex; align-items: flex-end; gap: 8px;">
+                                    <!-- Monthly bars -->
+                                    <div style="flex: 1; background-color: #3b82f6; height: 75%; position: relative; border-radius: 4px 4px 0 0;">
+                                        <span style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 600;">₱23.5M</span>
+                                    </div>
+                                    <div style="flex: 1; background-color: #3b82f6; height: 82%; position: relative; border-radius: 4px 4px 0 0;">
+                                        <span style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 600;">₱25.8M</span>
+                                    </div>
+                                    <div style="flex: 1; background-color: #3b82f6; height: 88%; position: relative; border-radius: 4px 4px 0 0;">
+                                        <span style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 600;">₱27.6M</span>
+                                    </div>
+                                    <div style="flex: 1; background-color: #3b82f6; height: 85%; position: relative; border-radius: 4px 4px 0 0;">
+                                        <span style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 600;">₱26.7M</span>
+                                    </div>
+                                    <div style="flex: 1; background-color: #3b82f6; height: 90%; position: relative; border-radius: 4px 4px 0 0;">
+                                        <span style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 600;">₱28.2M</span>
+                                    </div>
+                                    <div style="flex: 1; background-color: #10b981; height: 95%; position: relative; border-radius: 4px 4px 0 0;">
+                                        <span style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 600;">₱29.8M</span>
+                                    </div>
+                                    <div style="flex: 1; background-color: #10b981; height: 92%; position: relative; border-radius: 4px 4px 0 0;">
+                                        <span style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 600;">₱28.9M</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- X-axis labels -->
+                                <div style="position: absolute; bottom: -20px; left: 45px; right: 0; display: flex; font-size: 9px; color: #6b7280;">
+                                    <div style="flex: 1; text-align: center;">Jan</div>
+                                    <div style="flex: 1; text-align: center;">Feb</div>
+                                    <div style="flex: 1; text-align: center;">Mar</div>
+                                    <div style="flex: 1; text-align: center;">Apr</div>
+                                    <div style="flex: 1; text-align: center;">May</div>
+                                    <div style="flex: 1; text-align: center;">Jun</div>
+                                    <div style="flex: 1; text-align: center;">Jul</div>
+                                </div>
+                            </div>
+
+                            <!-- Revenue Categories -->
+                            <div style="margin-top: 30px; padding: 10px; background-color: #f9fafb; border-radius: 6px;">
+                                <div style="font-size: 11px; font-weight: 600; margin-bottom: 8px; color: #374151;">Revenue Sources Breakdown</div>
+                                <div style="space-y: 1;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <div style="width: 12px; height: 12px; background-color: #3b82f6; border-radius: 2px;"></div>
+                                            <span style="font-size: 10px;">Business Permits</span>
+                                        </div>
+                                        <span style="font-size: 10px; font-weight: 600;">₱125.8M (44%)</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <div style="width: 12px; height: 12px; background-color: #10b981; border-radius: 2px;"></div>
+                                            <span style="font-size: 10px;">Real Property Tax</span>
+                                        </div>
+                                        <span style="font-size: 10px; font-weight: 600;">₱89.4M (31%)</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <div style="width: 12px; height: 12px; background-color: #f59e0b; border-radius: 2px;"></div>
+                                            <span style="font-size: 10px;">Market & Fees</span>
+                                        </div>
+                                        <span style="font-size: 10px; font-weight: 600;">₱42.7M (15%)</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <div style="width: 12px; height: 12px; background-color: #8b5cf6; border-radius: 2px;"></div>
+                                            <span style="font-size: 10px;">Other Sources</span>
+                                        </div>
+                                        <span style="font-size: 10px; font-weight: 600;">₱27.5M (10%)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Growth Indicators -->
+                            <div style="display: flex; justify-content: space-around; padding: 10px; margin-top: 10px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 16px; font-weight: bold; color: #10b981;">↑12.5%</div>
+                                    <div style="font-size: 10px; color: #6b7280;">YoY GROWTH</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 16px; font-weight: bold; color: #374151;">89.2%</div>
+                                    <div style="font-size: 10px; color: #6b7280;">OF TARGET</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 16px; font-weight: bold; color: #3b82f6;">₱34.6M</div>
+                                    <div style="font-size: 10px; color: #6b7280;">TO TARGET</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Priority Actions -->
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h2 class="card-title">PRIORITY ACTIONS & RECOMMENDATIONS</h2>
+                        <button class="btn btn-secondary">Export Actions</button>
+                    </div>
+
+                    <ul class="priority-list">
+                        <li class="priority-item priority-critical">
+                            <div class="priority-label" style="color: #ef4444;">CRITICAL - Immediate Action Required</div>
+                            <div><strong>Flood Control Project Delay:</strong> Phase 2 of flood control in Barangay Riverside is 45% behind schedule. Risk of flooding before completion. Budget reallocation needed: ₱15.2M</div>
+                        </li>
+                        <li class="priority-item priority-high">
+                            <div class="priority-label" style="color: #f59e0b;">HIGH PRIORITY</div>
+                            <div><strong>Revenue Collection Gap:</strong> Commercial zone shows 23% collection deficit. Recommend intensified collection drive and business permit compliance check.</div>
+                        </li>
+                        <li class="priority-item priority-high">
+                            <div class="priority-label" style="color: #f59e0b;">HIGH PRIORITY</div>
+                            <div><strong>Health Center Construction:</strong> New health center 65% complete. On track for Q3 opening. Community impact: 15,000 residents.</div>
+                        </li>
+                        <li class="priority-item priority-medium">
+                            <div class="priority-label" style="color: #3b82f6;">MEDIUM PRIORITY</div>
+                            <div><strong>Road Network Expansion:</strong> Secondary roads project in agricultural zone progressing well. Economic impact assessment shows potential 12% increase in farm-to-market efficiency.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Layer toggle functionality
+        document.querySelectorAll('.layer-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const layerName = this.nextElementSibling.textContent;
+                console.log(`${layerName}: ${this.checked ? 'shown' : 'hidden'}`);
+                // In real implementation, this would toggle map layers
+            });
+        });
+
+        // Project marker interactions
+        document.querySelectorAll('.project-marker').forEach(marker => {
+            marker.addEventListener('mouseenter', function(e) {
+                const tooltip = document.createElement('div');
+                tooltip.style.cssText = `
+                    position: absolute;
+                    background: #374151;
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    top: ${e.target.offsetTop - 35}px;
+                    left: ${e.target.offsetLeft - 30}px;
+                    pointer-events: none;
+                    z-index: 1000;
+                    white-space: nowrap;
+                `;
+                
+                const projectTypes = {
+                    '🏗️': 'Road Rehabilitation - ₱45M (65%)',
+                    '🏥': 'Health Center - ₱125M (40%)',
+                    '🏫': 'School Building - ₱85M (100%)',
+                    '🌉': 'Bridge Construction - ₱67M (70%)',
+                    '🚰': 'Water System - ₱92M (80%)'
+                };
+                
+                tooltip.textContent = projectTypes[e.target.textContent] || 'Infrastructure Project';
+                tooltip.id = 'project-tooltip';
+                e.target.parentElement.appendChild(tooltip);
+            });
+            
+            marker.addEventListener('mouseleave', function() {
+                const tooltip = document.getElementById('project-tooltip');
+                if (tooltip) tooltip.remove();
+            });
+
+            marker.addEventListener('click', function() {
+                alert('Opening detailed project view...\nProject analytics, timeline, and financial details available.');
+            });
+        });
+
+        // Decision cards
+        document.querySelectorAll('.decision-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const action = this.querySelector('.decision-label').textContent;
+                
+                if (action === 'View Analytics') {
+                    alert('Opening comprehensive analytics dashboard...\n• Revenue trends\n• Project timelines\n• Risk assessments\n• Performance indicators');
+                } else if (action === 'Performance Metrics') {
+                    alert('Performance Metrics:\n• Project completion: 73%\n• Budget utilization: 82%\n• Timeline adherence: 68%\n• Quality score: 91%');
+                } else if (action === 'Set Priorities') {
+                    alert('Priority Setting Interface:\n1. Infrastructure completion\n2. Revenue enhancement\n3. Risk mitigation\n4. Service improvement');
+                } else if (action === 'Generate Brief') {
+                    alert('Generating executive brief...\nCompiling data from all departments\nPreparing strategic recommendations');
+                }
+            });
+        });
+
+        // Form submission
+        document.getElementById('executive-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Update workflow
+            document.querySelectorAll('.workflow-step').forEach(step => {
+                step.classList.remove('step-active', 'step-pending');
+                step.classList.add('step-completed');
+            });
+            
+            alert('Executive Brief Generated!\n\nContents:\n• Comprehensive overview map\n• KPI dashboard\n• Priority actions\n• Strategic recommendations\n• Financial summary\n\nReady for Mayor\'s review');
+        });
+
+        // Button actions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const btnText = this.textContent;
+                
+                if (btnText === 'REVIEW NOW') {
+                    alert('Critical Review:\n\n3 Projects at Risk:\n1. Flood Control Phase 2 - 45% delayed\n2. Market Development - Budget overrun\n3. Road Project A - Land acquisition issue\n\nRecommended actions prepared.');
+                } else if (btnText === 'Schedule Presentation') {
+                    alert('Scheduling Options:\n• Monday Staff Meeting\n• Department Heads Conference\n• Council Session\n• Public Presentation');
+                } else if (btnText === 'Export Map') {
+                    alert('Exporting strategic map...\nFormat: High-resolution PDF\nIncluding: All active layers and legends');
+                } else if (btnText === 'Full Screen') {
+                    alert('Entering full-screen presentation mode...\nPress ESC to exit');
+                } else if (btnText === 'Export Actions') {
+                    alert('Exporting priority actions...\nFormat: Executive memo\nDistribution: Department heads');
+                }
+            });
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('Searching for:', searchTerm);
+        });
+
+        // KPI card clicks
+        document.querySelectorAll('.kpi-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('.kpi-title').textContent;
+                alert(`Opening detailed ${title} dashboard...`);
+            });
+        });
+    </script>
+</body>
+</html>

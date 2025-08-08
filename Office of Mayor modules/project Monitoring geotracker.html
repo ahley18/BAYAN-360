@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Monitoring & GeoTracker - LCE Strategic GIS Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #374151;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            background-color: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            background-color: #4b5563;
+            color: white;
+            padding: 8px 12px 8px 40px;
+            border: none;
+            border-radius: 4px;
+            width: 300px;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0.6;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            background-color: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sync-badge {
+            background-color: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background-color: white;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 12px;
+            color: #6b7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .nav-item.active {
+            background-color: #dc2626;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Project Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background-color: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 600px;
+            background-color: #1f2937;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Map Controls */
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 6px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 20;
+        }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        .control-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .layer-checkbox {
+            cursor: pointer;
+        }
+
+        /* Project Markers */
+        .project-marker {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            pointer-events: all;
+            z-index: 15;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-marker:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .marker-ongoing {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .marker-completed {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .marker-delayed {
+            background-color: #ef4444;
+            color: white;
+            animation: blink 1.5s infinite;
+        }
+
+        .marker-planned {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Project Clusters */
+        .project-cluster {
+            position: absolute;
+            background-color: rgba(59, 130, 246, 0.2);
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #dc2626;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f3f4f6;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        /* Project List */
+        .project-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .project-item {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .project-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .project-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .project-status {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-ongoing {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-delayed {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-planned {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        .project-details {
+            font-size: 11px;
+            color: #6b7280;
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Timeline View */
+        .timeline-container {
+            margin-top: 24px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 0 10px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .timeline-bar {
+            position: relative;
+            height: 30px;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Filter Tags */
+        .filter-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .filter-tag {
+            padding: 4px 12px;
+            background-color: #f3f4f6;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-tag.active {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        /* Photo Grid */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .photo-item {
+            aspect-ratio: 16/9;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .photo-item:hover {
+            background-color: #d1d5db;
+        }
+
+        /* Process Flow */
+        .process-flow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 12px;
+        }
+
+        .flow-step {
+            padding: 6px 12px;
+            background-color: white;
+            border-radius: 4px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .flow-arrow {
+            color: #9ca3af;
+        }
+
+        .flow-active {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        /* Approval Actions */
+        .approval-section {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+
+        .approval-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .approval-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        /* Full width */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 16px;
+            padding: 8px;
+            background-color: #f9fafb;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                🏛️ OFFICE OF THE MAYOR
+            </div>
+            <div class="search-container">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" class="search-input" placeholder="Search projects by name, contractor, or location...">
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="sync-badge">
+                🔄 Auto-Sync: Engineering/Planning
+            </div>
+            <span>PROJECT MONITORING</span>
+            <div class="status-badge">
+                ✅ TRACK PROJECTS
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav>
+                <div class="nav-item">
+                    <span>🧭</span>
+                    <span>EXECUTIVE DASHBOARD</span>
+                </div>
+                <div class="nav-item active">
+                    <span>🗺️</span>
+                    <span>PROJECT MONITORING & GEOTRACKER</span>
+                </div>
+                <div class="nav-item">
+                    <span>📈</span>
+                    <span>DEPARTMENT PERFORMANCE SCORECARDS</span>
+                </div>
+                <div class="nav-item">
+                    <span>💬</span>
+                    <span>CITIZEN FEEDBACK & PUBLIC SENTIMENT</span>
+                </div>
+                <div class="nav-item">
+                    <span>📊</span>
+                    <span>BUDGET UTILIZATION & FUND TRACKING</span>
+                </div>
+                <div class="nav-item">
+                    <span>🚨</span>
+                    <span>EMERGENCY & DISASTER ALERT CONSOLE</span>
+                </div>
+                <div class="nav-item">
+                    <span>🧾</span>
+                    <span>EXECUTIVE ORDERS & MEMO GENERATOR</span>
+                </div>
+                <div class="nav-item">
+                    <span>🧠</span>
+                    <span>POLICY REVIEW & LEGISLATIVE COORDINATION</span>
+                </div>
+                <div class="nav-item">
+                    <span>🏘️</span>
+                    <span>BARANGAY AGGREGATED REPORTS</span>
+                </div>
+                <div class="nav-item">
+                    <span>📁</span>
+                    <span>COMPLIANCE & AUDIT FLAGS MONITOR</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Project Monitoring & GeoTracker</h1>
+                <p class="page-subtitle">Real-time visualization of infrastructure and social projects with drone imagery, photo documentation, and GIS layers linked to AIP</p>
+            </div>
+
+            <!-- Project Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🏗️</div>
+                    <div class="stat-value">47</div>
+                    <div class="stat-label">Total Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-value">28</div>
+                    <div class="stat-label">Ongoing</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Delayed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Planned</div>
+                </div>
+            </div>
+
+            <!-- Filter Tags -->
+            <div class="filter-tags">
+                <div class="filter-tag active">All Projects</div>
+                <div class="filter-tag">Infrastructure</div>
+                <div class="filter-tag">Social Services</div>
+                <div class="filter-tag">Health Facilities</div>
+                <div class="filter-tag">Education</div>
+                <div class="filter-tag">Environment</div>
+                <div class="filter-tag">Economic Dev</div>
+                <div class="filter-tag">AIP 2025</div>
+            </div>
+
+            <div class="grid">
+                <!-- GeoTracker Map -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">GEO-TAGGED PROJECT HEATMAP</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary">🛰️ Drone View</button>
+                            <button class="btn btn-secondary">📸 Photos</button>
+                            <button class="btn btn-secondary">📄 Export</button>
+                        </div>
+                    </div>
+
+                    <div class="map-container">
+                        <!-- Map Controls -->
+                        <div class="map-controls">
+                            <div class="control-group">
+                                <div class="control-label">View Mode</div>
+                                <select class="form-select" style="font-size: 12px; padding: 4px 8px;">
+                                    <option>Satellite + Projects</option>
+                                    <option>Terrain View</option>
+                                    <option>Heat Density</option>
+                                    <option>Timeline View</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <div class="control-label">Layers</div>
+                                <div class="layer-toggle">
+                                    <input type="checkbox" class="layer-checkbox" checked>
+                                    <span>Projects</span>
+                                </div>
+                                <div class="layer-toggle">
+                                    <input type="checkbox" class="layer-checkbox" checked>
+                                    <span>Drone Imagery</span>
+                                </div>
+                                <div class="layer-toggle">
+                                    <input type="checkbox" class="layer-checkbox" checked>
+                                    <span>Progress Photos</span>
+                                </div>
+                                <div class="layer-toggle">
+                                    <input type="checkbox" class="layer-checkbox">
+                                    <span>Barangay Bounds</span>
+                                </div>
+                                <div class="layer-toggle">
+                                    <input type="checkbox" class="layer-checkbox">
+                                    <span>Road Network</span>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <div class="control-label">Filter Status</div>
+                                <select class="form-select" style="font-size: 12px; padding: 4px 8px;">
+                                    <option>All Status</option>
+                                    <option>Ongoing Only</option>
+                                    <option>Delayed Only</option>
+                                    <option>Completed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Project Clusters -->
+                        <div class="project-cluster" style="left: 25%; top: 20%; width: 80px; height: 80px;">
+                            <span style="font-size: 18px;">5</span>
+                        </div>
+                        <div class="project-cluster" style="left: 60%; top: 35%; width: 60px; height: 60px;">
+                            <span style="font-size: 16px;">3</span>
+                        </div>
+
+                        <!-- Individual Project Markers -->
+                        <div class="project-marker marker-ongoing" style="left: 15%; top: 40%;" title="Health Center Construction">🏥</div>
+                        <div class="project-marker marker-completed" style="left: 35%; top: 25%;" title="Road Improvement">🛣️</div>
+                        <div class="project-marker marker-delayed" style="left: 45%; top: 50%;" title="Flood Control">🌊</div>
+                        <div class="project-marker marker-ongoing" style="left: 70%; top: 30%;" title="School Building">🏫</div>
+                        <div class="project-marker marker-ongoing" style="left: 55%; top: 60%;" title="Market Development">🏪</div>
+                        <div class="project-marker marker-planned" style="left: 80%; top: 45%;" title="Sports Complex">🏟️</div>
+                        <div class="project-marker marker-completed" style="left: 25%; top: 65%;" title="Water System">💧</div>
+                        <div class="project-marker marker-ongoing" style="left: 65%; top: 70%;" title="Bridge Construction">🌉</div>
+                        <div class="project-marker marker-delayed" style="left: 40%; top: 75%;" title="Drainage System">🚿</div>
+                        <div class="project-marker marker-ongoing" style="left: 50%; top: 15%;" title="Day Care Center">👶</div>
+
+                        <!-- Photo Markers -->
+                        <div style="position: absolute; left: 35%; top: 22%; width: 20px; height: 20px; background-color: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; z-index: 16;">📸</div>
+                        <div style="position: absolute; left: 45%; top: 48%; width: 20px; height: 20px; background-color: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; z-index: 16;">📸</div>
+                        <div style="position: absolute; left: 70%; top: 28%; width: 20px; height: 20px; background-color: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; z-index: 16;">📸</div>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #3b82f6;"></div>
+                            <span>Ongoing (28)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #10b981;"></div>
+                            <span>Completed (12)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #ef4444;"></div>
+                            <span>Delayed (5)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #6b7280;"></div>
+                            <span>Planned (2)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #fbbf24;"></div>
+                            <span>📸 Photo Available</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Input Panel -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">PROJECT ENTRY & TRACKING</h2>
+                    </div>
+
+                    <!-- Process Flow -->
+                    <div class="process-flow">
+                        <span class="flow-step">Engineering Input</span>
+                        <span class="flow-arrow">→</span>
+                        <span class="flow-step flow-active">Auto-Sync</span>
+                        <span class="flow-arrow">→</span>
+                        <span class="flow-step">Map Display</span>
+                        <span class="flow-arrow">→</span>
+                        <span class="flow-step">Mayor Review</span>
+                    </div>
+
+                    <form id="project-form">
+                        <div class="form-group">
+                            <label class="form-label">Project Name *</label>
+                            <input type="text" class="form-input" placeholder="e.g., Barangay Health Center Phase 2" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Location *</label>
+                                <select class="form-select" required>
+                                    <option value="">Select Barangay...</option>
+                                    <option>Barangay Poblacion</option>
+                                    <option>Barangay Riverside</option>
+                                    <option>Barangay Hillside</option>
+                                    <option>Barangay Centro</option>
+                                    <option>Barangay West</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">GPS Coordinates</label>
+                                <input type="text" class="form-input" placeholder="14.5995° N, 120.9842° E">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Contractor *</label>
+                            <input type="text" class="form-input" placeholder="e.g., ABC Construction Corp." required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Start Date *</label>
+                                <input type="date" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Target Completion *</label>
+                                <input type="date" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Budget (₱)</label>
+                                <input type="number" class="form-input" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">AIP Reference</label>
+                                <input type="text" class="form-input" placeholder="AIP-2025-INF-001">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Project Status *</label>
+                            <select class="form-select" required>
+                                <option value="">Select Status...</option>
+                                <option>Planning</option>
+                                <option>Procurement</option>
+                                <option>Ongoing</option>
+                                <option>Delayed</option>
+                                <option>On Hold</option>
+                                <option>Completed</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Progress (%)</label>
+                            <input type="range" class="form-input" min="0" max="100" value="0" id="progress-slider">
+                            <div style="text-align: center; margin-top: 4px; font-size: 14px; font-weight: 600;">
+                                <span id="progress-value">0</span>%
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Attachments</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 8px;">
+                                    📸 Add Photos
+                                </button>
+                                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 8px;">
+                                    🛰️ Link Drone
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="photo-grid">
+                            <div class="photo-item">📸 Site Photo 1</div>
+                            <div class="photo-item">📸 Progress Photo</div>
+                            <div class="photo-item">🛰️ Drone View</div>
+                            <div class="photo-item">+ Add More</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Notes / Issues</label>
+                            <textarea class="form-textarea" placeholder="Enter any project notes, issues, or delays..."></textarea>
+                        </div>
+
+                        <!-- Approval Section -->
+                        <div class="approval-section">
+                            <div class="approval-header">🔐 Mayor's Approval Actions</div>
+                            <div class="approval-actions">
+                                <button type="button" class="btn btn-success">✅ Validate Milestone</button>
+                                <button type="button" class="btn btn-warning">🚩 Flag Delay</button>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 16px;">
+                            <button type="submit" class="btn btn-primary">SAVE & GEO-TAG PROJECT</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Project List & Timeline -->
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h2 class="card-title">ACTIVE PROJECT TIMELINE & STATUS</h2>
+                        <button class="btn btn-secondary">View Gantt Chart</button>
+                    </div>
+
+                    <div class="timeline-container">
+                        <div class="timeline-header">
+                            <span>Q1 2025</span>
+                            <span>Q2 2025</span>
+                            <span>Q3 2025</span>
+                            <span>Q4 2025</span>
+                        </div>
+
+                        <!-- Flood Control Project -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span style="font-size: 12px; font-weight: 600;">🌊 Flood Control System - Barangay Riverside</span>
+                                <span style="font-size: 11px; color: #ef4444;">DELAYED • ₱145M</span>
+                            </div>
+                            <div class="timeline-bar">
+                                <div class="timeline-progress" style="left: 10%; width: 35%; background-color: #ef4444;">
+                                    55% Complete
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Health Center -->
+                        <div style="margin-top: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span style="font-size: 12px; font-weight: 600;">🏥 Central Health Facility - Poblacion</span>
+                                <span style="font-size: 11px; color: #10b981;">ON TRACK • ₱125M</span>
+                            </div>
+                            <div class="timeline-bar">
+                                <div class="timeline-progress" style="left: 5%; width: 45%; background-color: #10b981;">
+                                    65% Complete
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- School Building -->
+                        <div style="margin-top: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span style="font-size: 12px; font-weight: 600;">🏫 Elementary School Building - West District</span>
+                                <span style="font-size: 11px; color: #3b82f6;">ONGOING • ₱85M</span>
+                            </div>
+                            <div class="timeline-bar">
+                                <div class="timeline-progress" style="left: 15%; width: 35%; background-color: #3b82f6;">
+                                    40% Complete
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Road Network -->
+                        <div style="margin-top: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span style="font-size: 12px; font-weight: 600;">🛣️ Farm-to-Market Road - Agricultural Zone</span>
+                                <span style="font-size: 11px; color: #10b981;">COMPLETED • ₱45M</span>
+                            </div>
+                            <div class="timeline-bar">
+                                <div class="timeline-progress" style="left: 0%; width: 50%; background-color: #10b981;">
+                                    100% Complete ✓
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Market Development -->
+                        <div style="margin-top: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span style="font-size: 12px; font-weight: 600;">🏪 Public Market Modernization - Centro</span>
+                                <span style="font-size: 11px; color: #f59e0b;">ONGOING • ₱123M</span>
+                            </div>
+                            <div class="timeline-bar">
+                                <div class="timeline-progress" style="left: 0%; width: 55%; background-color: #f59e0b;">
+                                    78% Complete
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bridge Construction -->
+                        <div style="margin-top: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span style="font-size: 12px; font-weight: 600;">🌉 River Crossing Bridge - North Sector</span>
+                                <span style="font-size: 11px; color: #3b82f6;">ONGOING • ₱67M</span>
+                            </div>
+                            <div class="timeline-bar">
+                                <div class="timeline-progress" style="left: 20%; width: 25%; background-color: #3b82f6;">
+                                    35% Complete
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Water System -->
+                        <div style="margin-top: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span style="font-size: 12px; font-weight: 600;">💧 Water Distribution Network - Phase 3</span>
+                                <span style="font-size: 11px; color: #10b981;">COMPLETED • ₱92M</span>
+                            </div>
+                            <div class="timeline-bar">
+                                <div class="timeline-progress" style="left: 0%; width: 45%; background-color: #10b981;">
+                                    100% Complete ✓
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-around; padding: 16px; background-color: #f9fafb; border-radius: 6px; margin-top: 16px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 20px; font-weight: bold; color: #374151;">₱789.5M</div>
+                            <div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">Total Budget</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 20px; font-weight: bold; color: #10b981;">62%</div>
+                            <div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">Avg Completion</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 20px; font-weight: bold; color: #3b82f6;">28</div>
+                            <div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">Active Projects</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 20px; font-weight: bold; color: #ef4444;">5</div>
+                            <div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">Need Attention</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Updates -->
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h2 class="card-title">RECENT PROJECT UPDATES</h2>
+                        <button class="btn btn-secondary">View All</button>
+                    </div>
+
+                    <div class="project-list">
+                        <div class="project-item">
+                            <div class="project-header">
+                                <span class="project-name">🏥 Central Health Facility</span>
+                                <span class="project-status status-ongoing">MILESTONE REACHED</span>
+                            </div>
+                            <div class="project-details">
+                                <span>📅 Today</span>
+                                <span>📍 Poblacion</span>
+                                <span>✅ Structural work 100% complete</span>
+                                <span>📸 5 new photos</span>
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-header">
+                                <span class="project-name">🌊 Flood Control System</span>
+                                <span class="project-status status-delayed">DELAY FLAGGED</span>
+                            </div>
+                            <div class="project-details">
+                                <span>📅 Yesterday</span>
+                                <span>📍 Riverside</span>
+                                <span>⚠️ Material delivery delayed by 2 weeks</span>
+                                <span>Mayor review pending</span>
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-header">
+                                <span class="project-name">🏪 Public Market</span>
+                                <span class="project-status status-ongoing">PROGRESS UPDATE</span>
+                            </div>
+                            <div class="project-details">
+                                <span>📅 2 days ago</span>
+                                <span>📍 Centro</span>
+                                <span>📊 78% complete (+5%)</span>
+                                <span>🛰️ Drone survey completed</span>
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-header">
+                                <span class="project-name">🛣️ Farm-to-Market Road</span>
+                                <span class="project-status status-completed">COMPLETED</span>
+                            </div>
+                            <div class="project-details">
+                                <span>📅 3 days ago</span>
+                                <span>📍 Agricultural Zone</span>
+                                <span>✅ Final inspection passed</span>
+                                <span>Ready for inauguration</span>
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-header">
+                                <span class="project-name">🏫 School Building</span>
+                                <span class="project-status status-ongoing">PHOTO UPLOAD</span>
+                            </div>
+                            <div class="project-details">
+                                <span>📅 5 days ago</span>
+                                <span>📍 West District</span>
+                                <span>📸 12 progress photos added</span>
+                                <span>Foundation work in progress</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Progress slider
+        const progressSlider = document.getElementById('progress-slider');
+        const progressValue = document.getElementById('progress-value');
+        
+        progressSlider.addEventListener('input', function() {
+            progressValue.textContent = this.value;
+        });
+
+        // Form submission
+        document.getElementById('project-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Project saved and geo-tagged successfully!\n\n✅ Data synced with Engineering/Planning\n📍 Location mapped on GeoTracker\n📊 Added to project timeline\n🔔 Mayor notified for review');
+        });
+
+        // Filter tags
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                console.log('Filter applied:', this.textContent);
+            });
+        });
+
+        // Project markers
+        document.querySelectorAll('.project-marker').forEach(marker => {
+            marker.addEventListener('click', function() {
+                const projectInfo = {
+                    '🏥': 'Health Center Construction\nStatus: Ongoing (65%)\nBudget: ₱125M\nContractor: MediBuild Corp.',
+                    '🛣️': 'Road Improvement Project\nStatus: Completed (100%)\nBudget: ₱45M\nContractor: RoadWorks Inc.',
+                    '🌊': 'Flood Control System\nStatus: Delayed (55%)\nBudget: ₱145M\nContractor: HydroTech Solutions',
+                    '🏫': 'School Building Construction\nStatus: Ongoing (40%)\nBudget: ₱85M\nContractor: EduBuild Partners',
+                    '🏪': 'Market Development\nStatus: Ongoing (78%)\nBudget: ₱123M\nContractor: MarketDev Group',
+                    '🏟️': 'Sports Complex\nStatus: Planned\nBudget: ₱200M\nContractor: TBD',
+                    '💧': 'Water System Upgrade\nStatus: Completed (100%)\nBudget: ₱92M\nContractor: AquaTech Systems',
+                    '🌉': 'Bridge Construction\nStatus: Ongoing (35%)\nBudget: ₱67M\nContractor: BridgeWorks Corp.',
+                    '🚿': 'Drainage System\nStatus: Delayed (45%)\nBudget: ₱56M\nContractor: DrainTech Solutions',
+                    '👶': 'Day Care Center\nStatus: Ongoing (30%)\nBudget: ₱15M\nContractor: ChildCare Builders'
+                };
+                
+                const icon = this.textContent;
+                alert(projectInfo[icon] || 'Project Details');
+            });
+        });
+
+        // Photo markers
+        document.querySelectorAll('[style*="background-color: #fbbf24"]').forEach(photo => {
+            if (photo.textContent === '📸') {
+                photo.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    alert('Progress Photos Available:\n\n📸 Site preparation (Week 1)\n📸 Foundation work (Week 4)\n📸 Current progress (Today)\n🛰️ Drone aerial view\n\nClick to view full gallery...');
+                });
+            }
+        });
+
+        // Approval buttons
+        document.querySelectorAll('.approval-actions button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent.includes('Validate')) {
+                    alert('✅ Milestone Validated!\n\nProject: Central Health Facility\nMilestone: Structural Completion\nProgress: 65%\nNext Review: End of month\n\nNotification sent to Engineering Department');
+                } else if (this.textContent.includes('Flag')) {
+                    alert('🚩 Delay Flagged!\n\nProject: Flood Control System\nIssue: Material delivery delay\nImpact: 2-week schedule slip\nAction Required: Budget reallocation\n\nEscalation notice sent to contractors');
+                }
+            });
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Button actions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const btnText = this.textContent;
+                
+                if (btnText.includes('Drone View')) {
+                    alert('🛰️ Drone View Mode\n\nAvailable surveys:\n• Flood control area (2 days ago)\n• Market construction (1 week ago)\n• School site (Today)\n\nLoading high-resolution imagery...');
+                } else if (btnText.includes('Photos')) {
+                    alert('📸 Photo Gallery\n\n47 projects documented\n312 total photos\n15 drone surveys\n\nFilter by: Date | Project | Status');
+                } else if (btnText.includes('Export')) {
+                    alert('📄 Export Options:\n\n• PDF Report with maps\n• Excel project list\n• KML for Google Earth\n• Shape files for GIS\n• Photo archive (ZIP)');
+                } else if (btnText === 'View Gantt Chart') {
+                    alert('📊 Opening Gantt Chart View\n\nShowing:\n• Project dependencies\n• Critical path analysis\n• Resource allocation\n• Milestone tracking');
+                } else if (btnText === 'View All') {
+                    alert('📋 All Project Updates\n\nShowing 156 total updates\nFiltered by: Last 30 days\n\nExport options available');
+                } else if (btnText === 'Add Photos') {
+                    alert('📸 Photo Upload\n\nAccepted formats: JPG, PNG\nMax size: 10MB\nGeo-tagging: Automatic\n\nDrag files or click to browse...');
+                } else if (btnText === 'Link Drone') {
+                    alert('🛰️ Drone Integration\n\nConnecting to:\n• DJI FlightHub\n• Pix4D Cloud\n• Custom drone feeds\n\nReal-time streaming available');
+                }
+            });
+        });
+
+        // Project cluster clicks
+        document.querySelectorAll('.project-cluster').forEach(cluster => {
+            cluster.addEventListener('click', function() {
+                const count = this.querySelector('span').textContent;
+                alert(`Cluster Details:\n\n${count} Projects in this area\n\nClick to zoom in and see individual projects\nHeat density: High\nTotal budget: ₱${parseInt(count) * 85}M`);
+            });
+        });
+
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('Searching projects:', searchTerm);
+        });
+
+        // Layer toggles
+        document.querySelectorAll('.layer-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const layerName = this.nextElementSibling.textContent;
+                console.log(`Layer ${layerName}: ${this.checked ? 'shown' : 'hidden'}`);
+            });
+        });
+
+        // Photo grid items
+        document.querySelectorAll('.photo-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (this.textContent.includes('Add More')) {
+                    alert('📸 Add More Photos\n\nDrag and drop or click to browse\nAuto geo-tagging enabled\nProgress documentation required');
+                } else {
+                    alert(`Viewing: ${this.textContent}\n\nDate: ${new Date().toLocaleDateString()}\nLocation: Geo-tagged\nResolution: 4K\nClick to enlarge...`);
+                }
+            });
+        });
+
+        // Project items in list
+        document.querySelectorAll('.project-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const projectName = this.querySelector('.project-name').textContent;
+                alert(`Opening Project Details:\n\n${projectName}\n\nView:\n• Complete timeline\n• Financial breakdown\n• Contractor performance\n• Photo documentation\n• Inspection reports`);
+            });
+        });
+    </script>
+</body>
+</html>
