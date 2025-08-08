@@ -1,8 +1,12 @@
-import React from 'react';
+﻿import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Login from './Login';
 import AccountingOfficeDashboard from './accounting_office_dashboard';
 import MayorComplianceAndAudit from './mayor_compliance_and_audit';
+import MayorBudgetUtilizationAndFundTracking from './mayor_budget_utilization_and_fund_tracking';
+import MayorEmergencyAndDisaster from './mayor_emergency_and_disaster';
+import MayorPolicyReviewLegislative from './mayor_policy_review_legislative';
+import MayorCitizenFeedbackAndPublicSentiment from './mayor_citizen_feedback_and_public_sentiment';
 
 const App = () => {
     return (
@@ -10,6 +14,10 @@ const App = () => {
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<AccountingOfficeDashboard />} />
             <Route path="/mayor/compliance-and-audit" element={<MayorComplianceAndAudit />} />
+            <Route path="/mayor/budget-utilization-and-fund-tracking" element={<MayorBudgetUtilizationAndFundTracking />} />
+            <Route path="/mayor/emergency-and-disaster" element={<MayorEmergencyAndDisaster />} />
+            <Route path="/mayor/policy-review-legislative" element={<MayorPolicyReviewLegislative />} />
+            <Route path="/mayor/citizen-feedback-and-public-sentiment" element={<MayorCitizenFeedbackAndPublicSentiment />} />
         </Routes>
     );
 };
