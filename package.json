@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 {
   "name": "bayan-360-accounting-dashboard",
   "version": "1.0.0",
@@ -40,3 +41,48 @@
   "author": "Bayan 360 Team",
   "license": "MIT"
 }
+=======
+{
+  "name": "bayan-360-accounting-dashboard",
+  "version": "1.0.0",
+  "description": "Accounting Office Dashboard for Bayan 360 - Revenue tracking and COA compliance",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.5.0",
+    "react-router": "6.30.1",
+    "react-router-dom": "^6.30.1",
+    "react-scripts": "^5.0.1",
+    "styled-components": "^6.1.19"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "keywords": [
+    "react",
+    "dashboard",
+    "accounting",
+    "revenue",
+    "coa-compliance",
+    "philippines"
+  ],
+  "author": "Bayan 360 Team",
+  "license": "MIT"
+}
+>>>>>>> Stashed changes
