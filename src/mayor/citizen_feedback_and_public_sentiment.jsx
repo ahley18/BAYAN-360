@@ -1,26 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import GlobalStyleMayor from './mayor_office_styles.ts';
-import { FaTachometerAlt, FaChartBar, FaCommentDots, FaMoneyBillWave, FaExclamationTriangle, FaFileAlt, FaBalanceScale, FaHome, FaClipboardList } from 'react-icons/fa';
+import MayorOfficeNav from './mayor_office_nav';
 
 const CitizenFeedbackAndPublicSentiment = () => {
   const [activeNavIndex, setActiveNavIndex] = useState(3);
   const [searchTerm, setSearchTerm] = useState('');
-
-  const navItems = useMemo(
-    () => [
-      { label: 'EXECUTIVE DASHBOARD', Icon: FaTachometerAlt },
-      { label: 'PROJECT MONITORING & GEOTRACKER', Icon: FaChartBar },
-      { label: 'DEPARTMENT PERFORMANCE SCORECARDS', Icon: FaChartBar },
-      { label: 'CITIZEN FEEDBACK & PUBLIC SENTIMENT', Icon: FaCommentDots },
-      { label: 'BUDGET UTILIZATION & FUND TRACKING', Icon: FaMoneyBillWave },
-      { label: 'EMERGENCY & DISASTER ALERT CONSOLE', Icon: FaExclamationTriangle },
-      { label: 'EXECUTIVE ORDERS & MEMO GENERATOR', Icon: FaFileAlt },
-      { label: 'POLICY REVIEW & LEGISLATIVE COORDINATION', Icon: FaBalanceScale },
-      { label: 'BARANGAY AGGREGATED REPORTS', Icon: FaHome },
-      { label: 'COMPLIANCE & AUDIT FLAGS MONITOR', Icon: FaClipboardList },
-    ],
-    []
-  );
 
   const handleButton = (label) => {
     if (label === 'Export') {
@@ -101,18 +85,7 @@ const CitizenFeedbackAndPublicSentiment = () => {
       <div className="container">
         {/* Sidebar */}
         <aside className="sidebar">
-          <nav>
-            {navItems.map(({ label, Icon }, idx) => (
-              <div
-                key={label}
-                className={`nav-item ${activeNavIndex === idx ? 'active' : ''}`}
-                onClick={() => setActiveNavIndex(idx)}
-              >
-                <span className="nav-icon"><Icon size={18} /></span>
-                <span>{label}</span>
-              </div>
-            ))}
-          </nav>
+          <MayorOfficeNav activeIndex={activeNavIndex} setActiveIndex={setActiveNavIndex} />
         </aside>
 
         {/* Main Content */}
