@@ -1,60 +1,60 @@
 ﻿export const mayorOfficePages = [
     {
-        label: "Dashboard",
+        label: "EXECUTIVE DASHBOARD",
         iconText: "📊 Dashboard",
         badgeIcon: "📊",
         badgeText: "All systems operational"
     },
     {
-        label: "Reports",
+        label: "PROJECT MONITORING & GEOTRACKER",
         iconText: "📈 Reports",
         badgeIcon: "📈",
         badgeText: "Latest audit reports available"
     },
     {
-        label: "Statistics",
+        label: "DEPARTMENT PERFORMANCE SCORECARDS",
         iconText: "📊 Statistics",
         badgeIcon: "📊",
         badgeText: "Updated monthly stats"
     },
     {
-        label: "Feedback",
+        label: "CITIZEN FEEDBACK & PUBLIC SENTIMENT",
         iconText: "💬 Feedback",
         badgeIcon: "💬",
         badgeText: "New citizen feedback"
     },
     {
-        label: "Budget",
+        label: "BUDGET UTILIZATION & FUND TRACKING",
         iconText: "💰 Budget",
         badgeIcon: "💰",
         badgeText: "2025 budget released"
     },
     {
-        label: "Alerts",
+        label: "EMERGENCY & DISASTER ALERT CONSOLE",
         iconText: "⚠️ Alerts",
         badgeIcon: "⚠️",
         badgeText: "Immediate attention needed"
     },
     {
-        label: "Documents",
+        label: "EXECUTIVE ORDERS & MEMO GENERATOR",
         iconText: "📄 Documents",
         badgeIcon: "📄",
         badgeText: "New files uploaded"
     },
     {
-        label: "Legal",
+        label: "POLICY REVIEW & LEGISLATIVE COORDINATION",
         iconText: "⚖️ Legal",
         badgeIcon: "⚖️",
         badgeText: "Pending legal review"
     },
     {
-        label: "Home",
+        label: "BARANGAY AGGREGATED REPORTS",
         iconText: "🏠 Home",
         badgeIcon: "🏠",
         badgeText: "Welcome home"
     },
     {
-        label: "Compliance",
+        label: "COMPLIANCE & AUDIT FLAGS MONITOR",
         iconText: "📋 Compliance",
         badgeIcon: "📋",
         badgeText: "Critical COA Findings"
